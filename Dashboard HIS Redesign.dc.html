@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/design-system-sis-his-52dd8356-20ff-418f-8b0b-9169a14283cd/tokens.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{position:relative;display:flex;height:100vh;width:100%;overflow:hidden;color:var(--foreground);font-family:var(--font-sans);font-size:14px;-webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(1100px 620px at 10% -10%, rgba(136,28,28,.13), transparent 58%),
+    radial-gradient(900px 540px at 102% -4%, rgba(192,85,47,.10), transparent 56%),
+    radial-gradient(840px 620px at 92% 112%, rgba(29,99,196,.07), transparent 60%),
+    radial-gradient(720px 560px at -6% 108%, rgba(21,128,61,.05), transparent 60%),
+    linear-gradient(160deg,#f7f3f1 0%,#f1ebe8 60%,#efe9e6 100%)}
+.app *{font-family:var(--font-sans)}
+
+/* ============ SIDEBAR ============ */
+.sidebar{width:248px;flex:none;background:rgba(255,255,255,.5);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border-right:1px solid rgba(255,255,255,.55);display:flex;flex-direction:column;height:100vh;transition:width .26s cubic-bezier(.22,1,.36,1)}
+.app.collapsed .sidebar{width:74px}
+.s-brand{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 14px 18px;border-bottom:1px solid rgba(26,26,23,.07);overflow:hidden;text-align:center}
+.s-brand img{height:42px;flex:none;object-fit:contain;transition:height .2s}
+.app.collapsed .s-brand img{height:34px}
+.s-brand-tx{min-width:0;transition:opacity .18s,height .18s;overflow:hidden}
+.s-brand-tx .b1{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--foreground);line-height:1.2}
+.s-brand-tx .b2{font-size:10.5px;color:var(--muted-foreground);margin-top:2px}
+.app.collapsed .s-brand-tx{opacity:0;height:0;margin:0}
+.s-nav{flex:1;padding:12px 12px;overflow-y:auto;overflow-x:hidden}
+.s-nav::-webkit-scrollbar{width:0}
+.s-sec{font-size:10px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--neutral-400);padding:14px 10px 6px;white-space:nowrap;transition:opacity .18s}
+.app.collapsed .s-sec{opacity:0;height:14px;padding-top:8px;padding-bottom:0}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--radius-md);color:var(--neutral-600);cursor:pointer;font-size:13.5px;font-weight:500;white-space:nowrap;position:relative;transition:background .14s,color .14s;user-select:none;margin-bottom:2px}
+.nav-item svg{width:18px;height:18px;flex:none;stroke-width:2}
+.nav-item:hover{background:var(--neutral-100);color:var(--foreground)}
+.nav-item.active{background:var(--primary-50);color:var(--primary-700);font-weight:600}
+.nav-item.active svg{color:var(--primary)}
+.nav-item .nav-tx{transition:opacity .18s}
+.app.collapsed .nav-item{justify-content:center;padding:10px}
+.app.collapsed .nav-item .nav-tx{opacity:0;width:0;overflow:hidden}
+.app.collapsed .nav-item::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--neutral-900);color:#fff;font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .14s;z-index:50;box-shadow:var(--shadow-md)}
+.app.collapsed .nav-item:hover::after{opacity:1}
+.s-foot{padding:10px 12px;border-top:1px solid var(--border)}
+.s-foot .nav-item{color:var(--neutral-500)}
+.s-copy{font-size:10px;color:var(--neutral-400);padding:8px 11px 2px;white-space:nowrap;overflow:hidden}
+.app.collapsed .s-copy{opacity:0}
+
+/* ============ MAIN ============ */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+
+/* topbar */
+.topbar{height:65px;flex:none;background:rgba(255,255,255,.5);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border-bottom:1px solid rgba(255,255,255,.5);display:flex;align-items:center;gap:14px;padding:0 22px;z-index:5}
+.collapse-btn{width:34px;height:34px;flex:none;border-radius:var(--radius-md);border:1px solid transparent;background:transparent;color:var(--neutral-500);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .14s,color .14s}
+.collapse-btn:hover{background:var(--neutral-100);color:var(--foreground)}
+.collapse-btn svg{width:18px;height:18px}
+.bc{display:flex;align-items:center;gap:8px;min-width:0}
+.bc .bc-mod{font-size:13px;color:var(--muted-foreground);font-weight:500;white-space:nowrap}
+.bc .bc-sep{color:var(--neutral-300)}
+.bc .bc-cur{font-size:15px;color:var(--foreground);font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-spacer{flex:1}
+.tb-tools{display:flex;align-items:center;gap:10px}
+.daterange{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 11px;background:var(--card);border:1px solid var(--input-border);border-radius:var(--radius-md);transition:border-color .14s,box-shadow .14s}
+.daterange:focus-within{border-color:var(--ring);box-shadow:var(--ring-focus)}
+.daterange svg{width:15px;height:15px;color:var(--muted-foreground);flex:none}
+.daterange input[type=date]{border:0;background:transparent;font-family:var(--font-sans);font-size:12.5px;color:var(--foreground);outline:none;width:108px;font-variant-numeric:tabular-nums}
+.daterange .dr-dash{color:var(--neutral-300);font-size:12px}
+.seg{display:inline-flex;background:var(--neutral-100);border:1px solid var(--border);border-radius:var(--radius-md);padding:3px;gap:2px}
+.seg button{border:0;background:transparent;font-family:var(--font-sans);font-size:12px;font-weight:500;color:var(--muted-foreground);padding:5px 11px;border-radius:6px;cursor:pointer;transition:all .14s;white-space:nowrap}
+.seg button:hover{color:var(--foreground)}
+.seg button.active{background:var(--card);color:var(--primary-700);box-shadow:var(--shadow-xs);font-weight:600}
+.tb-clock{font-size:11.5px;color:var(--muted-foreground);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ibtn{width:36px;height:36px;flex:none;border-radius:var(--radius-md);border:1px solid var(--input-border);background:var(--card);color:var(--neutral-600);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .14s}
+.ibtn:hover{background:var(--neutral-50);color:var(--primary-700);border-color:var(--primary-200)}
+.ibtn svg{width:16px;height:16px}
+.btn-export{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:var(--radius-md);border:1px solid var(--input-border);background:var(--card);color:var(--foreground);font-size:13px;font-weight:500;cursor:pointer;transition:all .14s}
+.btn-export:hover{background:var(--neutral-50);border-color:var(--neutral-300)}
+.btn-export svg{width:15px;height:15px}
+
+/* tabbar */
+.tabbar{flex:none;background:rgba(255,255,255,.42);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);border-bottom:1px solid rgba(255,255,255,.45);padding:0 22px;display:flex;gap:2px;overflow-x:auto;position:relative;z-index:4}
+.tabbar::-webkit-scrollbar{height:0}
+.tab{padding:13px 14px 12px;font-size:13px;font-weight:500;color:var(--muted-foreground);cursor:pointer;border:0;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .14s;font-family:var(--font-sans);position:relative}
+.tab:hover{color:var(--foreground)}
+.tab.active{color:var(--primary-700);font-weight:600;border-bottom-color:var(--primary)}
+
+/* content */
+.content{flex:1;overflow-y:auto;padding:22px 22px 40px;display:flex;flex-direction:column;gap:16px}
+.content::-webkit-scrollbar{width:8px}
+.content::-webkit-scrollbar-thumb{background:var(--neutral-200);border-radius:4px;border:2px solid var(--surface)}
+.content::-webkit-scrollbar-thumb:hover{background:var(--neutral-300)}
+.content>*{animation:fadeUp .45s cubic-bezier(.22,1,.36,1)}
+.content>*:nth-child(2){animation-delay:.05s}
+.content>*:nth-child(3){animation-delay:.10s}
+.content>*:nth-child(4){animation-delay:.15s}
+.content>*:nth-child(5){animation-delay:.20s}
+.content>*:nth-child(6){animation-delay:.24s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* section label */
+.sec-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--neutral-500);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 -4px}
+.sec-label::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--primary);flex:none}
+
+/* ============ KPI ============ */
+.kpi-grid{display:grid;gap:14px}
+.kpi-grid.c5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi-grid.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpi-grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kpi-grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kpi{background:linear-gradient(150deg,rgba(255,255,255,.78),rgba(255,255,255,.58));backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);border:1px solid rgba(255,255,255,.7);border-radius:var(--radius-xl);box-shadow:0 1px 2px rgba(26,26,23,.04),0 12px 28px -14px rgba(136,28,28,.18);padding:16px 17px;display:flex;flex-direction:column;gap:9px;transition:box-shadow .22s,transform .22s;position:relative}
+.kpi:hover{box-shadow:0 2px 4px rgba(26,26,23,.05),0 18px 38px -14px rgba(136,28,28,.28);transform:translateY(-2px)}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kpi-label{font-size:12.5px;color:var(--muted-foreground);font-weight:500;line-height:1.35}
+.kpi-label small{display:block;font-size:11px;color:var(--neutral-400);font-weight:400;margin-top:1px}
+.kpi-ic{width:32px;height:32px;flex:none;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center}
+.kpi-ic svg{width:16px;height:16px;stroke-width:2}
+.ic-primary{background:var(--primary-50);color:var(--primary-700)}
+.ic-info{background:var(--info-soft);color:var(--info-soft-fg)}
+.ic-success{background:var(--success-soft);color:var(--success-soft-fg)}
+.ic-warning{background:var(--warning-soft);color:var(--warning-soft-fg)}
+.ic-danger{background:var(--danger-soft);color:var(--danger-soft-fg)}
+.ic-slate{background:var(--neutral-100);color:var(--neutral-600)}
+.kpi-main{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;overflow:hidden}
+.kpi-val{font-size:27px;font-weight:700;color:var(--foreground);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;flex:none;min-width:0}
+.kpi-unit{font-size:13px;font-weight:500;color:var(--muted-foreground);letter-spacing:0}
+.kpi-spark{flex:1 1 auto;min-width:0;max-width:84px;height:34px}
+.kpi-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.delta.up{color:var(--success)}
+.delta.down{color:var(--danger)}
+.delta.flat{color:var(--neutral-400)}
+.kpi-sub{font-size:11.5px;color:var(--muted-foreground)}
+.kpi-prog{height:6px;border-radius:99px;background:var(--neutral-100);overflow:hidden;margin-top:2px}
+.kpi-prog>span{display:block;height:100%;border-radius:99px;background:var(--primary);transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* ============ CHART CARD ============ */
+.row2{display:grid;gap:16px}
+.row2.r55{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.row2.r64{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.row2.r73{grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)}
+.ccard{background:linear-gradient(155deg,rgba(255,255,255,.76),rgba(255,255,255,.56));backdrop-filter:blur(16px) saturate(1.35);-webkit-backdrop-filter:blur(16px) saturate(1.35);border:1px solid rgba(255,255,255,.68);border-radius:var(--radius-xl);box-shadow:0 1px 2px rgba(26,26,23,.04),0 14px 32px -16px rgba(136,28,28,.18);display:flex;flex-direction:column;min-width:0}
+.ccard-pad{padding:17px 18px}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 6px}
+.ct{font-size:14px;font-weight:600;color:var(--foreground);letter-spacing:-.01em}
+.ct .num{color:var(--primary-600);font-weight:700;margin-right:5px}
+.cs{font-size:12px;color:var(--muted-foreground);margin-top:3px;line-height:1.4}
+.view-all{font-size:12px;color:var(--primary-700);cursor:pointer;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.view-all:hover{color:var(--primary)}
+.view-all svg{width:13px;height:13px}
+.chart-wrap{position:relative;padding:6px 14px 16px;flex:1}
+.chart-h{position:relative;width:100%;height:210px}
+canvas{display:block}
+
+/* legend */
+.legend{display:flex;gap:8px 16px;flex-wrap:wrap;padding:2px 18px 16px}
+.legend.col{flex-direction:column;gap:9px;padding-top:8px}
+.li{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--neutral-700)}
+.li .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.li-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}
+.li-row .v{font-weight:600;color:var(--foreground);font-variant-numeric:tabular-nums}
+.li-row .p{color:var(--muted-foreground);font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+
+/* ============ TABLE ============ */
+.tbl-wrap{overflow-x:auto}
+table.dtbl{width:100%;border-collapse:collapse;font-size:13px}
+table.dtbl thead th{text-align:left;background:var(--neutral-50);color:var(--muted-foreground);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:10px 16px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);white-space:nowrap}
+table.dtbl tbody td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--foreground);vertical-align:middle}
+table.dtbl tbody tr:last-child td{border-bottom:0}
+table.dtbl tbody tr{transition:background .12s}
+table.dtbl tbody tr:hover td{background:var(--neutral-50)}
+table.dtbl td strong{font-weight:600}
+.code{font-family:var(--font-mono);font-size:11.5px;background:var(--neutral-100);color:var(--neutral-700);padding:2px 6px;border-radius:5px;font-variant-numeric:tabular-nums}
+.mini-bar{height:6px;border-radius:99px;background:var(--neutral-100);width:84px;overflow:hidden;margin-top:5px}
+.mini-fill{height:100%;border-radius:99px}
+.rank{width:22px;height:22px;border-radius:6px;background:var(--neutral-100);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--neutral-500);font-variant-numeric:tabular-nums}
+.rank.top3{background:var(--primary);color:#fff}
+
+/* badges (extend DS) */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;line-height:1.4;padding:3px 9px;border-radius:var(--radius-full);white-space:nowrap}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.badge-neutral{background:var(--neutral-100);color:var(--neutral-600)}
+.badge-success{background:var(--success-soft);color:var(--success-soft-fg)}
+.badge-warning{background:var(--warning-soft);color:var(--warning-soft-fg)}
+.badge-danger{background:var(--danger-soft);color:var(--danger-soft-fg)}
+.badge-info{background:var(--info-soft);color:var(--info-soft-fg)}
+.badge-primary{background:var(--primary-50);color:var(--primary-700)}
+
+/* heatmap */
+.hm-wrap{overflow-x:auto;padding:4px 18px 12px}
+.hm{display:grid;grid-template-columns:34px repeat(7,1fr);gap:3px;min-width:360px}
+.hm-h{font-size:10px;font-weight:600;color:var(--muted-foreground);text-align:center;padding-bottom:4px}
+.hm-hl{font-size:10px;color:var(--neutral-400);text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;font-variant-numeric:tabular-nums}
+.hm-cell{height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;cursor:default;transition:transform .12s;font-variant-numeric:tabular-nums}
+.hm-cell:hover{transform:scale(1.12);z-index:1;position:relative;box-shadow:var(--shadow-md)}
+.hm-scale{display:flex;align-items:center;gap:6px;padding:0 18px 16px;font-size:10.5px;color:var(--muted-foreground)}
+.hm-scale .sw{width:16px;height:9px;border-radius:2px}
+
+/* banner / empty */
+.banner{display:flex;align-items:flex-start;gap:11px;background:var(--warning-soft);border:1px solid #f0d9b8;border-radius:var(--radius-lg);padding:13px 15px;margin:0 18px 16px}
+.banner svg{width:18px;height:18px;flex:none;margin-top:1px;color:var(--warning)}
+.banner strong{display:block;font-size:12.5px;font-weight:700;color:var(--warning-soft-fg);margin-bottom:2px}
+.banner p{font-size:12px;color:#8a6534;line-height:1.5}
+.empty{background:var(--card);border:1px dashed var(--neutral-300);border-radius:var(--radius-xl);padding:54px 32px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
+.empty-ic{width:52px;height:52px;border-radius:var(--radius-lg);background:var(--neutral-100);display:flex;align-items:center;justify-content:center;color:var(--neutral-400);margin-bottom:6px}
+.empty-ic svg{width:24px;height:24px;stroke-width:1.6}
+.empty h3{font-size:14.5px;color:var(--neutral-600);font-weight:600}
+.empty p{font-size:12.5px;color:var(--neutral-400);max-width:360px;line-height:1.5}
+
+/* ============ SETTINGS DRAWER ============ */
+.drawer-overlay{position:fixed;inset:0;background:rgba(26,26,23,.42);z-index:900;opacity:0;pointer-events:none;transition:opacity .22s}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;width:420px;max-width:92vw;height:100vh;background:var(--card);z-index:901;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(26,26,23,.16);transform:translateX(100%);transition:transform .28s cubic-bezier(.22,1,.36,1)}
+.drawer.open{transform:none}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border);flex:none}
+.dh-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:var(--foreground);letter-spacing:-.01em}
+.dh-title svg{width:18px;height:18px;color:var(--primary)}
+.dh-close{width:32px;height:32px;border-radius:var(--radius-md);border:1px solid var(--border);background:var(--card);color:var(--neutral-500);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .14s}
+.dh-close:hover{background:var(--neutral-100);color:var(--foreground)}
+.dh-close svg{width:16px;height:16px}
+.db{flex:1;overflow-y:auto}
+.db::-webkit-scrollbar{width:8px}
+.db::-webkit-scrollbar-thumb{background:var(--neutral-200);border-radius:4px;border:2px solid var(--card)}
+.dsec{padding:18px 20px;border-bottom:1px solid var(--border)}
+.dsec-title{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--primary-700);margin-bottom:13px}
+.drow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dfield{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dfield.full{grid-column:1/-1}
+.dfield label{font-size:12.5px;font-weight:500;color:var(--foreground);line-height:1.3;min-height:32px}
+.dfield label .u{color:var(--muted-foreground);font-weight:400;font-size:11px;margin-left:3px}
+.dfield input{height:36px;border:1px solid var(--input-border);border-radius:var(--radius-md);padding:0 12px;font-family:var(--font-sans);font-size:13px;color:var(--foreground);background:var(--card);outline:none;transition:border-color .14s,box-shadow .14s;-moz-appearance:textfield;font-variant-numeric:tabular-nums}
+.dfield input:focus{border-color:var(--ring);box-shadow:var(--ring-focus)}
+.dhint{font-size:11px;color:var(--neutral-400);line-height:1.4}
+.df{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;border-top:1px solid var(--border);background:var(--neutral-50);flex:none}
+.btn-reset{background:transparent;border:0;color:var(--muted-foreground);font-size:12px;cursor:pointer;font-family:var(--font-sans);font-weight:500;padding:6px 4px}
+.btn-reset:hover{color:var(--danger)}
+.df-right{display:flex;align-items:center;gap:10px}
+.btn-cancel{height:36px;padding:0 14px;background:var(--card);color:var(--foreground);border:1px solid var(--input-border);border-radius:var(--radius-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);transition:all .14s}
+.btn-cancel:hover{background:var(--neutral-50)}
+.btn-save{height:36px;padding:0 18px;background:var(--primary);color:#fff;border:0;border-radius:var(--radius-md);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .14s}
+.btn-save:hover{background:var(--primary-hover)}
+.saved{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--success);font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none}
+.saved.show{opacity:1}
+.saved svg{width:14px;height:14px}
+</style>
+</helmet>
+<div class="app" ref="{{ rootRef }}">
+  <aside class="sidebar">
+    <div class="s-brand">
+      <img src="assets/sis-logo.png" alt="S.I.S SOFT">
+      <div class="s-brand-tx">
+        <div class="b1">Dashboard HIS</div>
+        <div class="b2">Digital Health Solutions</div>
+      </div>
+    </div>
+    <nav class="s-nav" id="navWrap"></nav>
+    <div class="s-foot">
+      <div class="nav-item" data-act="settings-open" data-tip="Cấu Hình Cài Đặt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span class="nav-tx">Cấu Hình Cài Đặt</span>
+      </div>
+      <div class="s-copy">SIS SOFT © 2025 &nbsp;·&nbsp; v2.0</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="collapse-btn" data-act="collapse" title="Thu gọn menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18"></path></svg>
+      </button>
+      <div class="bc">
+        <span class="bc-mod" id="bcMod">Ngoại Trú</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-cur" id="bcCur">Tổng Quan Tiếp Nhận</span>
+      </div>
+      <div class="tb-spacer"></div>
+      <div class="tb-tools">
+        <div class="daterange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="3"></rect><path d="M3 9.5h18M8 2.5v4M16 2.5v4"></path><path d="M7.5 13h.01M12 13h.01M16.5 13h.01M7.5 17h.01M12 17h.01"></path></svg>
+          <input type="date" id="dateFrom" value="2025-01-01">
+          <span class="dr-dash">–</span>
+          <input type="date" id="dateTo" value="2025-01-31">
+        </div>
+        <div class="seg" id="qfSeg">
+          <button data-act="qf" data-q="today">Hôm nay</button>
+          <button data-act="qf" data-q="month" class="active">Tháng</button>
+          <button data-act="qf" data-q="quarter">Quý</button>
+          <button data-act="qf" data-q="year">Năm</button>
+        </div>
+        <span class="tb-clock" id="clock"></span>
+        <button class="btn-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>Xuất báo cáo</button>
+      </div>
+    </header>
+
+    <nav class="tabbar" id="tabBar"></nav>
+    <div class="content" id="mainContent"></div>
+  </div>
+
+  <div class="drawer-overlay" id="settingsOverlay" data-act="settings-close"></div>
+  <aside class="drawer" id="settingsDrawer">
+    <div class="dh">
+      <div class="dh-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Cấu Hình Cài Đặt
+      </div>
+      <button class="dh-close" data-act="settings-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+    </div>
+    <div class="db">
+      <div class="dsec">
+        <div class="dsec-title">Kế Hoạch Doanh Thu</div>
+        <div class="drow">
+          <div class="dfield"><label>KH Doanh Thu Tháng<span class="u">triệu VNĐ</span></label><input type="number" id="cfg-dtKhThang" min="0" step="100"></div>
+          <div class="dfield"><label>KH Doanh Thu Quý<span class="u">triệu VNĐ</span></label><input type="number" id="cfg-dtKhQuy" min="0" step="100"></div>
+          <div class="dfield full"><label>KH Doanh Thu Năm<span class="u">triệu VNĐ</span></label><input type="number" id="cfg-dtKhNam" min="0" step="1000"></div>
+        </div>
+      </div>
+      <div class="dsec">
+        <div class="dsec-title">Thời Gian Quy Trình Khám</div>
+        <div class="drow">
+          <div class="dfield"><label>Ngưỡng TG Chờ Khám<span class="u">phút</span></label><input type="number" id="cfg-tgChoChuan" min="1" max="120"><div class="dhint">BN chờ quá X phút → vượt chuẩn</div></div>
+          <div class="dfield"><label>Ngưỡng Phát Thuốc<span class="u">phút</span></label><input type="number" id="cfg-tgPhatThuoc" min="1" max="60"><div class="dhint">Từ thanh toán → nhận thuốc</div></div>
+        </div>
+      </div>
+      <div class="dsec">
+        <div class="dsec-title">Cận Lâm Sàng – TAT Chuẩn</div>
+        <div class="drow">
+          <div class="dfield"><label>TAT Xét Nghiệm<span class="u">phút</span></label><input type="number" id="cfg-tatXn" min="1" max="480"><div class="dhint">Chỉ định → có kết quả XN</div></div>
+          <div class="dfield"><label>TAT Chẩn Đoán Hình Ảnh<span class="u">phút</span></label><input type="number" id="cfg-tatCdha" min="1" max="480"><div class="dhint">Chỉ định → có kết quả CĐHA</div></div>
+        </div>
+      </div>
+      <div class="dsec">
+        <div class="dsec-title">Công Suất Giường Nội Trú</div>
+        <div class="drow">
+          <div class="dfield"><label>Ngưỡng Dưới Chuẩn<span class="u">%</span></label><input type="number" id="cfg-csGiuongDuoi" min="0" max="100"><div class="dhint">Dưới X% → trạng thái "Dưới CS"</div></div>
+          <div class="dfield"><label>Ngưỡng Quá Tải<span class="u">%</span></label><input type="number" id="cfg-csGiuongQT" min="50" max="200"><div class="dhint">Trên X% → trạng thái "Quá Tải"</div></div>
+        </div>
+      </div>
+      <div class="dsec">
+        <div class="dsec-title">Cảnh Báo Kho Dược</div>
+        <div class="drow">
+          <div class="dfield"><label>Cảnh Báo Hạn Sử Dụng<span class="u">tháng</span></label><input type="number" id="cfg-hanSd" min="1" max="24"><div class="dhint">Thuốc còn dưới X tháng → cảnh báo FEFO</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="df">
+      <button class="btn-reset" data-act="settings-reset">Đặt Lại Mặc Định</button>
+      <div class="df-right">
+        <span class="saved" id="savedFb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"></path></svg>Đã lưu</span>
+        <button class="btn-cancel" data-act="settings-close">Hủy</button>
+        <button class="btn-save" data-act="settings-save">Lưu Cấu Hình</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  renderVals(){ return { rootRef: this.rootRef }; }
+
+  componentDidMount(){
+    const root = this.rootRef.current;
+    this.root = root;
+    this.curMod = 'ngoaitru';
+    this.curTab = 0;
+    this.charts = {};
+
+    // ---- palette ----
+    this.C = { maroon:'#881c1c', terra:'#c0552f', blue:'#1d63c4', green:'#15803d', amber:'#b45309', slate:'#5b6470', danger:'#c62828', neutral:'#a4a4a0' };
+    this.GRID = 'rgba(26,26,23,.06)';
+
+    // ---- chart.js defaults ----
+    if(window.Chart){
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      Chart.defaults.font.size = 11;
+      Chart.defaults.color = '#797975';
+      Chart.defaults.plugins.tooltip.backgroundColor = '#1a1a17';
+      Chart.defaults.plugins.tooltip.padding = 10;
+      Chart.defaults.plugins.tooltip.cornerRadius = 8;
+      Chart.defaults.plugins.tooltip.titleFont = { weight:'600', size:12 };
+      Chart.defaults.plugins.tooltip.bodyFont = { size:11.5 };
+      Chart.defaults.plugins.tooltip.boxPadding = 4;
+    }
+
+    this.MODULES = {
+      ngoaitru:{title:'Ngoại Trú',icon:'user',tabs:['Tổng Quan Tiếp Nhận','Theo Phòng Khám','Theo Bác Sĩ','Hiệu Suất Vận Hành','Doanh Thu NT','Cận Lâm Sàng NT','Dược NT','Phân Tích Nâng Cao']},
+      noitru:{title:'Nội Trú',icon:'building',tabs:['Tổng Quan Công Suất','Theo Khoa','Thời Gian Nằm Viện','Phẫu Thuật','Doanh Thu NT','Dược NT','Cận Lâm Sàng NT']},
+      capcuu:{title:'Cấp Cứu',icon:'activity',tabs:['Thống Kê Cấp Cứu']},
+      cls:{title:'CLS – Cận Lâm Sàng',icon:'flask',tabs:['Tổng Quan CLS','Xét Nghiệm (LIS)','Chẩn Đoán Hình Ảnh','Doanh Thu CLS','Nội Soi','Thăm Dò CN']},
+      duoc:{title:'Dược & Vật Tư',icon:'pill',tabs:['Tổng Quan Tồn Kho','Cảnh Báo Tồn Kho','Sử Dụng Thuốc','Thuốc Theo Khoa','Nhập Xuất Tồn','Vật Tư Tiêu Hao','Thuốc Kiểm Soát']},
+      taichinh:{title:'Tài Chính – Doanh Thu',icon:'dollar',tabs:['Tổng Quan DT','Nguồn Thanh Toán','Nhóm Dịch Vụ','Theo Khoa','Theo Bác Sĩ']}
+    };
+    this.NAV_GROUPS = [
+      { sec:null, mods:['ngoaitru','noitru','capcuu','cls'] },
+      { sec:'Quản Lý', mods:['duoc','taichinh'] }
+    ];
+
+    this.DEFAULT_CONFIG = {dtKhThang:5060,dtKhQuy:15180,dtKhNam:60720,tgChoChuan:30,tgPhatThuoc:20,tatXn:60,tatCdha:90,csGiuongDuoi:50,csGiuongQT:100,hanSd:3};
+    this.CONFIG = {...this.DEFAULT_CONFIG};
+    this.loadSettings();
+
+    this.buildIcons();
+    this.renderNav();
+    this.renderTabs();
+    this.renderContent();
+    this.bindEvents();
+    this.startClock();
+  }
+
+  // ============ ICONS ============
+  buildIcons(){
+    const s=(p)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+    this.IC = {
+      user:s('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+      building:s('<path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/><path d="M9 9v.01M9 12v.01M9 15v.01"/>'),
+      activity:s('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'),
+      flask:s('<path d="M9 3h6M10 3v6.5L5 18a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3L14 9.5V3"/><path d="M7 14h10"/>'),
+      pill:s('<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>'),
+      dollar:s('<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+      clock:s('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+      check:s('<path d="M20 6 9 17l-5-5"/>'),
+      x:s('<path d="M18 6 6 18M6 6l12 12"/>'),
+      bed:s('<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+      stack:s('<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/>'),
+      alert:s('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>'),
+      grid:s('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>'),
+      arrow:s('<path d="M5 12h14M13 6l6 6-6 6"/>')
+    };
+  }
+
+  // ============ NAV ============
+  renderNav(){
+    const wrap = this.root.querySelector('#navWrap');
+    let html='';
+    this.NAV_GROUPS.forEach(g=>{
+      if(g.sec) html+=`<div class="s-sec">${g.sec}</div>`;
+      g.mods.forEach(m=>{
+        const M=this.MODULES[m];
+        html+=`<div class="nav-item${m===this.curMod?' active':''}" data-act="nav" data-mod="${m}" data-tip="${M.title}">${this.IC[M.icon]}<span class="nav-tx">${M.title}</span></div>`;
+      });
+    });
+    wrap.innerHTML=html;
+  }
+
+  // ============ TABS ============
+  renderTabs(){
+    const bar=this.root.querySelector('#tabBar');
+    bar.innerHTML=this.MODULES[this.curMod].tabs.map((t,i)=>
+      `<button class="tab${i===this.curTab?' active':''}" data-act="tab" data-tab="${i}">${t}</button>`
+    ).join('');
+  }
+
+  updateBreadcrumb(){
+    const M=this.MODULES[this.curMod];
+    this.root.querySelector('#bcMod').textContent=M.title;
+    this.root.querySelector('#bcCur').textContent=M.tabs[this.curTab];
+  }
+
+  setModule(m){
+    if(m===this.curMod) return;
+    this.curMod=m; this.curTab=0;
+    this.renderNav(); this.renderTabs(); this.updateBreadcrumb(); this.renderContent();
+  }
+  setTab(i){
+    if(i===this.curTab) return;
+    this.curTab=i; this.renderTabs(); this.updateBreadcrumb(); this.renderContent();
+  }
+
+  // ============ CONTENT ============
+  renderContent(){
+    Object.values(this.charts).forEach(c=>{try{c.destroy();}catch(e){}});
+    this.charts={};
+    const el=this.root.querySelector('#mainContent');
+    el.scrollTop=0;
+    el.innerHTML='';
+    const key=`${this.curMod}-${this.curTab}`;
+    const fn=this.PANELS()[key];
+    if(fn) el.appendChild(fn());
+    else el.appendChild(this.emptyState());
+    // restart entrance animation
+    void el.offsetWidth;
+    setTimeout(()=>{ this.initCharts(key); this.initChartsExt(key); this.initSparklines(el); },30);
+    this.updateBreadcrumb();
+  }
+
+  // ============ HELPERS ============
+  div(cls,html){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;return d;}
+
+  kpi(o){
+    // o:{label, sub2, val, unit, sub, delta, dir, color, icon, spark, prog}
+    const dlt = o.delta!=null ? `<span class="delta ${o.dir||'flat'}">${o.dir==='up'?'▲':o.dir==='down'?'▼':'→'} ${o.delta}</span>` : '';
+    const sparkEl = o.spark ? `<canvas class="kpi-spark" data-spark="${o.spark.join(',')}" data-color="${o.sparkColor||this.C.maroon}"></canvas>` : '';
+    const subEl = o.sub ? `<span class="kpi-sub">${o.sub}</span>` : '';
+    const progEl = o.prog!=null ? `<div class="kpi-prog"><span style="width:${o.prog}%"></span></div>` : '';
+    const lab = `<div class="kpi-label">${o.label}${o.sub2?`<small>${o.sub2}</small>`:''}</div>`;
+    return `<div class="kpi">
+      <div class="kpi-top">${lab}<div class="kpi-ic ic-${o.color||'primary'}">${this.IC[o.icon]||''}</div></div>
+      <div class="kpi-main"><div class="kpi-val">${o.val}${o.unit?`<span class="kpi-unit">${o.unit}</span>`:''}</div>${sparkEl}</div>
+      ${progEl}
+      <div class="kpi-foot">${dlt}${subEl}</div>
+    </div>`;
+  }
+
+  chartCard(num,title,sub,canvasId,extra='',viewAll=''){
+    const va = viewAll?`<span class="view-all">${viewAll} ${this.IC.arrow}</span>`:'';
+    return `<div class="ccard"><div class="ch"><div><div class="ct"><span class="num">${num}</span>${title}</div><div class="cs">${sub}</div></div>${va}</div><div class="chart-wrap"><div class="chart-h"><canvas id="${canvasId}"></canvas></div></div>${extra}</div>`;
+  }
+  tableCard(num,title,sub,headers,rows,viewAll='Xem tất cả'){
+    const va = viewAll?`<span class="view-all">${viewAll} ${this.IC.arrow}</span>`:'';
+    return `<div class="ccard"><div class="ch"><div><div class="ct"><span class="num">${num}</span>${title}</div><div class="cs">${sub}</div></div>${va}</div>
+      <div class="tbl-wrap"><table class="dtbl"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
+  legendRows(items){
+    // items: [color,name,val,pct]
+    return `<div class="legend col">${items.map(([c,n,v,p])=>`<div class="li-row"><div class="li"><span class="sw" style="background:${c}"></span>${n}</div><div style="display:flex;gap:12px;align-items:center">${v?`<span class="v">${v}</span>`:''}<span class="p">${p}</span></div></div>`).join('')}</div>`;
+  }
+  legendFlat(items){
+    return `<div class="legend">${items.map(([c,n])=>`<div class="li"><span class="sw" style="background:${c}"></span>${n}</div>`).join('')}</div>`;
+  }
+  emptyState(msg='Chưa có dữ liệu'){
+    return this.div('empty',`<div class="empty-ic">${this.IC.grid}</div><h3>${msg}</h3><p>Tab này sẽ hiển thị khi module được tích hợp dữ liệu thực vào hệ thống.</p>`);
+  }
+
+  // ============ PANELS ============
+  PANELS(){
+    const C=this.C;
+    const P={};
+
+    // ─ NGOẠI TRÚ · Tab 0 ─
+    P['ngoaitru-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','1.1 · KPI – Lượt Khám Trong Ngày'));
+      f.appendChild(this.div('kpi-grid c5',
+        this.kpi({label:'Tổng Đăng Ký',val:'524',sub:'lượt hôm nay',delta:'12.5%',dir:'up',color:'info',icon:'user',spark:[380,410,440,460,420,490,524],sparkColor:C.blue})+
+        this.kpi({label:'Chờ Khám',val:'45',sub:'đang chờ',color:'warning',icon:'clock'})+
+        this.kpi({label:'Đang Khám',val:'12',sub:'phòng khám',color:'primary',icon:'activity'})+
+        this.kpi({label:'Hoàn Tất',val:'453',sub:'đã xử lý xong',delta:'86.5%',dir:'flat',color:'success',icon:'check',spark:[300,330,360,400,420,440,453],sparkColor:C.green})+
+        this.kpi({label:'Hủy Khám',val:'14',sub:'lượt hủy',color:'slate',icon:'x'})
+      ));
+      f.appendChild(this.div('sec-label','1.2 · KPI – Bệnh Nhân Mới / Tái Khám'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'BN Mới',val:'187',sub:'lần đầu khám tại BV',color:'primary',icon:'user'})+
+        this.kpi({label:'BN Tái Khám',val:'337',sub:'đã từng khám trước',color:'info',icon:'user'})+
+        this.kpi({label:'Tỷ Lệ Mới / Cũ',val:'35.7',unit:'%',sub:'BN mới / tổng BN',color:'slate',icon:'check'})
+      ));
+      const row=this.div('row2 r55','');
+      row.innerHTML=
+        this.chartCard('1.3','Phân Loại Đối Tượng BN','Số lượt khám theo nhóm thanh toán – hôm nay','donutNT',
+          this.legendRows([[C.blue,'BHYT','312 lượt','59.5%'],[C.terra,'Dịch Vụ','168 lượt','32.1%'],[C.green,'BHTN','28 lượt','5.3%'],[C.neutral,'Miễn Phí','16 lượt','3.1%']]))+
+        `<div class="ccard"><div class="ch"><div><div class="ct"><span class="num">1.4</span>Nguồn Bệnh Nhân Đến</div><div class="cs">Khảo sát kênh tiếp cận bệnh viện</div></div></div>
+          <div class="banner">${this.IC.alert}<div><strong>Đang cập nhật – Module chưa sẵn sàng</strong><p>Widget phụ thuộc module khảo sát chưa có. Dữ liệu sẽ hiển thị khi module sẵn sàng.</p></div></div></div>`;
+      f.appendChild(row);
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 7 ─
+    P['ngoaitru-7']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'BN Hôm Nay',val:'524',sub:'lượt đăng ký',delta:'12.5%',dir:'up',color:'info',icon:'user'})+
+        this.kpi({label:'TB 7 Ngày Gần Nhất',val:'466',sub:'lượt/ngày',color:'primary',icon:'user'})+
+        this.kpi({label:'% So Với TB 7 Ngày',val:'+12.4',unit:'%',sub:'Hôm nay vs TB 7 ngày',delta:'12.4%',dir:'up',color:'success',icon:'activity'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('8.1','Xu Hướng BN Theo Giờ Trong Ngày','Số lượt đăng ký theo từng khung giờ – hôm nay','lineHourNT',
+          this.legendFlat([[C.blue,'Lượt đăng ký']]))+
+        `<div class="ccard"><div class="ch"><div><div class="ct"><span class="num">8.2</span>Giờ Cao Điểm Theo Ngày/Tuần</div><div class="cs">Mật độ BN trung bình – màu đậm = nhiều hơn</div></div></div>
+          <div class="hm-wrap"><div class="hm" id="hmNT"></div></div>
+          <div class="hm-scale"><span>Thấp</span>${['#f9f9f8','#f6dede','#dd9292','#c95c5c','#881c1c'].map(c=>`<span class="sw" style="background:${c}"></span>`).join('')}<span>Cao</span></div></div>`;
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 0 ─
+    P['noitru-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','1.1 · KPI – Trạng Thái Giường Bệnh'));
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Giường Kế Hoạch',val:'200',sub:'giường theo kế hoạch',color:'slate',icon:'bed'})+
+        this.kpi({label:'Giường Thực Kê',val:'185',sub:'đang bố trí',color:'info',icon:'bed'})+
+        this.kpi({label:'Giường Trống',val:'44',sub:'có thể nhận BN',color:'success',icon:'bed'})+
+        this.kpi({label:'Tỷ Lệ SD Giường',val:'76.2',unit:'%',sub:'141/185 giường đang dùng',delta:'2.1%',dir:'up',color:'warning',icon:'activity',prog:76.2})
+      ));
+      f.appendChild(this.div('sec-label','1.2 · KPI – Lưu Lượng Nhập / Xuất Viện'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Nhập Viện',val:'34',sub:'bệnh nhân hôm nay',delta:'8.3%',dir:'up',color:'info',icon:'user'})+
+        this.kpi({label:'Xuất Viện',val:'28',sub:'bệnh nhân hôm nay',color:'success',icon:'check'})+
+        this.kpi({label:'Chuyển Viện',val:'5',sub:'bệnh nhân hôm nay',color:'warning',icon:'activity'})
+      ));
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 1 ─
+    P['noitru-1']=()=>{
+      const f=document.createDocumentFragment();
+      const depts=[
+        {k:'Tim Mạch',bn:48,cho:3,tong:50,pct:102,st:'QUÁ TẢI'},
+        {k:'Thần Kinh',bn:38,cho:2,tong:40,pct:100,st:'QUÁ TẢI'},
+        {k:'Nội Tiết',bn:35,cho:1,tong:45,pct:80,st:'BÌNH THƯỜNG'},
+        {k:'Ngoại Tổng Hợp',bn:30,cho:0,tong:40,pct:75,st:'BÌNH THƯỜNG'},
+        {k:'Ung Bướu',bn:28,cho:2,tong:35,pct:86,st:'BÌNH THƯỜNG'},
+        {k:'Nhi Khoa',bn:25,cho:1,tong:40,pct:65,st:'BÌNH THƯỜNG'},
+        {k:'Sản Khoa',bn:22,cho:0,tong:30,pct:73,st:'BÌNH THƯỜNG'},
+        {k:'Chỉnh Hình',bn:18,cho:0,tong:30,pct:60,st:'BÌNH THƯỜNG'},
+        {k:'Phổi',bn:12,cho:0,tong:25,pct:48,st:'DƯỚI CS'},
+        {k:'Da Liễu',bn:8,cho:0,tong:20,pct:40,st:'DƯỚI CS'},
+      ];
+      const rows=depts.map(d=>{
+        const cls=d.st==='QUÁ TẢI'?'badge-danger':d.st==='DƯỚI CS'?'badge-neutral':'badge-success';
+        const fc=d.pct>100?C.danger:d.pct>50?C.green:C.neutral;
+        return `<tr><td><strong>${d.k}</strong></td><td>${d.bn}</td><td>${d.cho}</td><td>${d.tong}</td>
+          <td><div style="font-weight:600;font-variant-numeric:tabular-nums">${d.pct}%</div><div class="mini-bar"><div class="mini-fill" style="width:${Math.min(d.pct,100)}%;background:${fc}"></div></div></td>
+          <td><span class="badge ${cls}"><span class="dot"></span>${d.st}</span></td></tr>`;
+      }).join('');
+      f.appendChild(this.div('',this.tableCard('2.1','Công Suất Giường Từng Khoa','Thống kê BN hiện diện / tổng giường – hôm nay',
+        ['Khoa','BN Hiện Diện','BN Chờ Nhập','Tổng Giường','% SD Giường','Trạng Thái'],rows,'Xem tất cả')));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('2.2','LOS TB & Số Tử Vong Theo Khoa','Thời gian nằm viện trung bình và ca tử vong theo từng khoa','barLosKhoa',
+        this.legendFlat([[C.blue,'LOS TB (ngày)'],[C.danger,'Tử vong (ca)']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 2 ─
+    P['noitru-2']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'LOS Trung Bình Toàn Viện',val:'5.2',unit:'ngày',sub:'Tất cả BN nội trú xuất viện',color:'info',icon:'clock'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('3.2','LOS TB Theo Khoa','Thời gian nằm viện trung bình, sắp xếp giảm dần','barLosKhoa2')+
+        this.tableCard('3.3','Top 10 ICD Có LOS Dài Nhất','Nhóm bệnh có thời gian điều trị trung bình cao nhất',
+          ['ICD','Tên Bệnh','LOS TB','Số Ca'],
+          [['J18.9','Viêm phổi không xác định','12.4','45'],['I21.9','NMCT cấp','10.8','32'],['G35','Xơ cứng rải rác','9.6','18'],['C50.9','Ung thư vú','8.9','24'],['N18.5','Suy thận mạn gđ5','8.2','29'],['E11.9','Đái tháo đường type 2','7.4','38'],['I50.9','Suy tim','6.9','52'],['J44.1','COPD đợt cấp','6.5','34'],['A41.9','Nhiễm khuẩn huyết','6.1','22'],['K92.1','Xuất huyết tiêu hoá','5.8','41']].map(([c,n,l,s])=>`<tr><td><span class="code">${c}</span></td><td>${n}</td><td><strong>${l}</strong></td><td>${s}</td></tr>`).join(''),
+          'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ CẤP CỨU · Tab 0 ─
+    P['capcuu-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Số Ca Cấp Cứu',val:'23',sub:'ca tiếp nhận hôm nay',delta:'8.7%',dir:'up',color:'danger',icon:'activity'})+
+        this.kpi({label:'TG Lưu Bệnh TB',val:'85',unit:'phút',sub:'từ tiếp nhận → kết thúc xử trí',color:'warning',icon:'clock'})+
+        this.kpi({label:'Tỷ Lệ Nhập Viện',val:'18.3',unit:'%',sub:'từ CC → nhập viện nội trú',color:'info',icon:'user'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('','Phân Loại Kết Quả Ra Viện','Tình trạng sau xử trí cấp cứu – tháng hiện tại','pieCC',
+          this.legendRows([[C.blue,'Về nhà sau xử trí','','48%'],[C.green,'Nhập viện nội trú','','18%'],[C.amber,'Chuyển khoa','','22%'],[C.neutral,'Xin về / chuyển viện','','8%'],[C.danger,'Tử vong tại CC','','4%']]))+
+        this.chartCard('','Lưu Lượng Ca Theo Giờ','Số ca tiếp nhận theo khung giờ trong ngày','lineCC',
+          this.legendFlat([[C.danger,'Ca cấp cứu']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ TÀI CHÍNH · Tab 0 ─
+    P['taichinh-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','1.1 · KPI – Tổng Doanh Thu Theo Kỳ'));
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Doanh Thu Hôm Nay',val:'485',unit:'triệu',sub:'thu từ tất cả dịch vụ',delta:'18.3%',dir:'up',color:'success',icon:'dollar',spark:[300,360,330,400,420,450,485],sparkColor:C.green})+
+        this.kpi({label:'Doanh Thu Tháng',val:'4.26',unit:'tỷ',sub:'01/2025',delta:'18.3%',dir:'up',color:'info',icon:'dollar'})+
+        this.kpi({label:'Doanh Thu Quý',val:'12.8',unit:'tỷ',sub:'Q1/2025',delta:'12.1%',dir:'up',color:'primary',icon:'dollar'})+
+        this.kpi({label:'Doanh Thu Năm',val:'48.5',unit:'tỷ',sub:'2025 (lũy kế)',delta:'15.2%',dir:'up',color:'warning',icon:'dollar'})
+      ));
+      f.appendChild(this.div('sec-label','1.2 · So Cùng Kỳ  ·  1.3 · Kế Hoạch'));
+      const row12=this.div('kpi-grid c2','');
+      row12.innerHTML=
+        this.kpi({label:'So Với Cùng Kỳ',sub2:'DT tháng này vs tháng trước',val:'▲ 18.3',unit:'%',sub:'Kỳ hiện tại: 4.26 tỷ · Cùng kỳ trước: 3.60 tỷ',color:'success',icon:'activity'})+
+        this.kpi({label:'So Với Kế Hoạch',sub2:'KH: 5.06 tỷ – thực tế: 4.26 tỷ',val:'84.2',unit:'%',sub:'Còn thiếu: 0.80 tỷ để đạt kế hoạch',color:'info',icon:'check',prog:84.2});
+      f.appendChild(row12);
+      f.appendChild(this.div('sec-label','1.4 · KPI – Doanh Thu Trung Bình'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'DT TB / Bệnh Nhân',val:'920',unit:'nghìn',sub:'VNĐ/BN trong kỳ',color:'success',icon:'user'})+
+        this.kpi({label:'DT TB / Ngày',val:'167',unit:'triệu',sub:'VNĐ/ngày trong kỳ',color:'info',icon:'dollar'})+
+        this.kpi({label:'DT TB / Lượt Khám',val:'650',unit:'nghìn',sub:'VNĐ/lượt trong kỳ',color:'primary',icon:'activity'})
+      ));
+      return f;
+    };
+
+    // ─ TÀI CHÍNH · Tab 1 ─
+    P['taichinh-1']=()=>{
+      const f=document.createDocumentFragment();
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('2.1','Cơ Cấu Doanh Thu Theo Nguồn Thanh Toán','Phân tích tỷ trọng – tháng 01/2025','donutTC',
+          this.legendRows([[C.blue,'BHYT','2.12 tỷ','49.8%'],[C.terra,'Dịch Vụ Thu Phí','1.68 tỷ','39.5%'],[C.green,'Bảo Hiểm Tư Nhân','0.31 tỷ','7.3%'],[C.amber,'Công Ty HĐ','0.10 tỷ','2.4%'],[C.neutral,'Khác','0.05 tỷ','1.0%']]),'Xem tất cả')+
+        this.chartCard('2.2','Xu Hướng 30 Ngày Theo Nguồn Thanh Toán','Biến động doanh thu từng nguồn – tháng 01/2025','lineTC',
+          this.legendFlat([[C.blue,'BHYT'],[C.terra,'Dịch Vụ'],[C.green,'BHTN'],[C.amber,'Công ty']]),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 0 ─
+    P['duoc-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','1.1 · KPI – Giá Trị Tồn Kho Tổng Quan'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Giá Trị Tồn Thuốc',val:'12.4',unit:'tỷ',sub:'tổng giá trị thuốc trong kho',color:'success',icon:'pill'})+
+        this.kpi({label:'Giá Trị Tồn Vật Tư',val:'8.7',unit:'tỷ',sub:'tổng giá trị vật tư y tế',color:'info',icon:'stack'})+
+        this.kpi({label:'Số Mặt Hàng QL',val:'2,847',unit:'SKU',sub:'mặt hàng đang hoạt động',color:'primary',icon:'activity'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('1.2','Giá Trị Tồn Theo Kho','Tổng giá trị tồn kho của từng kho – hiện tại','barKho',
+          this.legendFlat([[C.maroon,'Giá trị (tỷ VNĐ)']]))+
+        this.tableCard('1.3','Tỷ Lệ Tồn So Với Định Mức','So sánh tồn thực tế vs định mức cấu hình',
+          ['Kho','Giá Trị Tồn','Định Mức','Tỷ Lệ','Trạng Thái'],
+          [['Kho Trung Tâm','5.2 tỷ','6.0 tỷ','87','green'],['Kho Ngoại Trú','2.1 tỷ','2.5 tỷ','84','green'],['Kho Nội Trú','2.8 tỷ','3.0 tỷ','93','green'],['Kho Cấp Cứu','0.8 tỷ','1.0 tỷ','80','amber'],['Kho Phẫu Thuật','1.2 tỷ','1.5 tỷ','80','amber']].map(([k,v,d,p,c])=>`<tr><td><strong>${k}</strong></td><td>${v}</td><td>${d}</td><td><strong>${p}%</strong><div class="mini-bar"><div class="mini-fill" style="width:${p}%;background:${c==='green'?C.green:C.amber}"></div></div></td><td><span class="badge ${c==='green'?'badge-success':'badge-warning'}"><span class="dot"></span>${c==='green'?'Bình thường':'Chú ý'}</span></td></tr>`).join(''),
+          'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 1 ─
+    P['duoc-1']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Dưới Ngưỡng Tối Thiểu',val:'18',unit:'SKU',sub:'cần nhập bổ sung ngay',color:'danger',icon:'alert'})+
+        this.kpi({label:'Vượt Ngưỡng Tối Đa',val:'7',unit:'SKU',sub:'tồn dư thừa',color:'warning',icon:'alert'})+
+        this.kpi({label:'Sắp Hết Hạn (< 3T)',val:'24',unit:'SKU',sub:'ưu tiên xuất trước (FEFO)',color:'primary',icon:'clock'})+
+        this.kpi({label:'Đã Hết Hạn',val:'5',unit:'SKU',sub:'chưa xuất huỷ',color:'slate',icon:'x'})
+      ));
+      f.appendChild(this.div('',this.tableCard('2.1','Thuốc Dưới Ngưỡng Tối Thiểu','Danh sách cần nhập bổ sung – ưu tiên đỏ',
+        ['Tên Thuốc','Kho','Tồn Hiện Tại','Ngưỡng Tối Thiểu','Trạng Thái'],
+        [['Amoxicillin 500mg','Kho NT','120 viên','500 viên'],['Ceftriaxone 1g','Kho CC','15 lọ','50 lọ'],['Insulin Glargine','Kho NT','8 lọ','30 lọ'],['Metformin 850mg','Kho NT','200 viên','800 viên'],['Adrenaline 1mg','Kho CC','5 ống','20 ống'],['Omeprazole 40mg','Kho NT','150 viên','600 viên']].map(([n,k,t,m])=>`<tr><td><strong>${n}</strong></td><td>${k}</td><td style="color:var(--danger);font-weight:600">${t}</td><td>${m}</td><td><span class="badge badge-danger"><span class="dot"></span>Cần nhập ngay</span></td></tr>`).join(''),
+        'Xem tất cả (18 SKU)')));
+      f.appendChild(this.div('',this.tableCard('2.3','Thuốc Sắp Hết Hạn (< 3 tháng)','Ưu tiên xuất trước theo nguyên tắc FEFO',
+        ['Tên Thuốc','Số Lô','Hạn Sử Dụng','Tồn Kho','Còn Lại'],
+        [['Azithromycin 250mg','L2024-08','28/02/2025','350 viên','32 ngày'],['Ciprofloxacin 500mg','L2024-09','15/03/2025','280 viên','46 ngày'],['Atorvastatin 20mg','L2024-10','30/03/2025','420 viên','59 ngày'],['Losartan 50mg','L2024-07','10/04/2025','180 viên','70 ngày']].map(([n,l,h,t,c])=>`<tr><td><strong>${n}</strong></td><td><span class="code">${l}</span></td><td style="color:var(--warning);font-weight:600">${h}</td><td>${t}</td><td><span class="badge badge-warning">${c}</span></td></tr>`).join(''),
+        'Xem tất cả (24 SKU)')));
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 1 · Theo Phòng Khám ─
+    P['ngoaitru-1']=()=>{
+      const f=document.createDocumentFragment();
+      const pk=[
+        ['Nội Tổng Hợp',52,11,26],
+        ['Tim Mạch',44,15,28],
+        ['Nhi',38,10,18],
+        ['Sản',33,12,16],
+        ['Thần Kinh',31,13,22],
+        ['Nội Tiết',28,14,20],
+        ['Ung Bướu',26,16,24],
+        ['Mắt',24,12,15]
+      ];
+      const rows=pk.map(([n,bn,tk,tc])=>{
+        const cl=tc>25?'badge-warning':tc<15?'badge-success':'badge-neutral';
+        return `<tr><td><strong>${n}</strong></td><td><strong>${bn}</strong></td><td>${tk} phút</td><td><span class="badge ${cl}"><span class="dot"></span>${tc} phút</span></td></tr>`;
+      }).join('');
+      f.appendChild(this.div('',this.tableCard('2.1','Hiệu Suất Từng Phòng Khám','Tổng BN, thời gian khám & chờ trung bình trong kỳ',
+        ['Phòng Khám','Tổng BN','TG Khám TB (PHÚT)','TG Chờ TB (PHÚT)'],rows,'Xem tất cả')));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('2.2','BN Theo Đối Tượng Từng Phòng','Phân cơ cấu đối tượng thanh toán theo phòng khám','barPKObj',
+        this.legendFlat([[C.blue,'BHYT'],[C.terra,'Dịch vụ'],[C.green,'BHTN'],[C.neutral,'Miễn phí']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 2 · Theo Bác Sĩ ─
+    P['ngoaitru-2']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Bác Sĩ Khám Bệnh',val:'24',sub:'BS đang trực khám',color:'info',icon:'user'})+
+        this.kpi({label:'Lượt Khám TB / BS',val:'21.8',sub:'lượt/BS hôm nay',color:'primary',icon:'activity'})+
+        this.kpi({label:'BS Nhiều Lượt Nhất',val:'38',unit:'lượt',sub:'BS. Trần Văn Hùng',color:'warning',icon:'check'})
+      ));
+      const bs=[
+        ['Trần Văn Hùng','Nội Tổng Quát',38,11],
+        ['Lê Thị Mai','Tai Mũi Họng',34,10],
+        ['Phạm Quốc An','Cơ Xương Khớp',29,13],
+        ['Hoàng Văn Nam','Tim Mạch',26,15],
+        ['Nguyễn Thu Hà','Da Liễu',24,9],
+        ['Vũ Đình Long','Mắt',22,12],
+        ['Đỗ Hồng Sơn','Nội Tiết',21,14],
+        ['Bùi Thị Lan','Tiêu Hoá',19,12]
+      ];
+      const rows=bs.map(([n,ck,l,tg],i)=>`<tr><td><span class="rank${i<3?' top3':''}">${i+1}</span></td><td><strong>BS. ${n}</strong></td><td>${ck}</td><td><strong>${l}</strong></td><td>${tg} phút</td></tr>`).join('');
+      f.appendChild(this.div('',this.tableCard('3.1','Hiệu Suất Bác Sĩ','Số lượt BN đã khám và thời gian khám trung bình trong kỳ',
+        ['#','Bác Sĩ','Chuyên Khoa','Số BN Đã Khám','TG Khám TB'],rows,'Xem tất cả')));
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 3 · Hiệu Suất Vận Hành ─
+    P['ngoaitru-3']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','4.1 · KPI – Thời Gian Quy Trình Khám  (X = 30 phút · cấu hình cài đặt)'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'TG Đăng Ký → BS TB',val:'22',unit:'phút',sub:'từ đăng ký đến vào khám',delta:'5.4%',dir:'down',color:'info',icon:'clock'})+
+        this.kpi({label:'Tỷ Lệ Đạt Chuẩn',sub2:'≤ 30 phút',val:'84.0',unit:'%',sub:'440 / 524 lượt đạt chuẩn',delta:'3.1%',dir:'up',color:'success',icon:'check',prog:84.0})+
+        this.kpi({label:'Tỷ Lệ Quá Chuẩn',sub2:'≥ 30 phút',val:'16.0',unit:'%',sub:'84 / 524 lượt vượt chuẩn',delta:'3.1%',dir:'down',color:'danger',icon:'alert',prog:16.0})
+      ));
+      f.appendChild(this.div('sec-label','4.2 · KPI – Thời Gian Cấp Toa'));
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'TG Thanh Toán → Nhận Thuốc TB',val:'16',unit:'phút',sub:'chuẩn ≤ 20 phút',color:'primary',icon:'pill'})+
+        this.kpi({label:'Tỷ Lệ Phát Thuốc Đúng Hạn',val:'91.2',unit:'%',sub:'376 / 412 đơn đúng hạn',delta:'2.4%',dir:'up',color:'success',icon:'check',prog:91.2})
+      ));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('4.3','Phân Bố Thời Gian Chờ Khám','Số BN theo nhóm giờ gian chờ (phút)','barFunnel',
+        this.legendFlat([[C.green,'Đạt chuẩn'],[C.danger,'Quá chuẩn']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 4 · Doanh Thu NT ─
+    P['ngoaitru-4']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','5.1 · KPI – Doanh Thu Ngoại Trú'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Tổng DT Ngoại Trú',val:'2.74',unit:'tỷ',sub:'Tháng 01/2025',delta:'11.2%',dir:'up',color:'success',icon:'dollar',spark:[2.1,2.3,2.25,2.5,2.4,2.62,2.74],sparkColor:C.green})+
+        this.kpi({label:'Số Hoá Đơn',val:'4,280',sub:'hoá đơn trong kỳ',delta:'6.4%',dir:'up',color:'info',icon:'activity'})+
+        this.kpi({label:'DT TB / Lượt',val:'595',unit:'nghìn',sub:'VNĐ/lượt trong kỳ',color:'primary',icon:'activity'})
+      ));
+      const r1=this.div('row2 r55','');
+      r1.innerHTML=
+        this.chartCard('5.2','Doanh Thu Theo Phòng Khám','Tổng DT theo từng phòng khám trong kỳ','barDtPK',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]))+
+        this.chartCard('5.3','Doanh Thu Theo Bác Sĩ','Top 10 bác sĩ có doanh thu cao nhất trong kỳ','barDtBsNT',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]),'Xem tất cả');
+      f.appendChild(r1);
+      const r2=this.div('row2 r55','');
+      r2.innerHTML=
+        this.chartCard('5.4','Doanh Thu Theo Đối Tượng','Tỷ trọng DT theo hình thức thanh toán','donutDtDoiTuong',
+          this.legendRows([[C.blue,'BHYT','1.36 tỷ','49.8%'],[C.terra,'Dịch vụ','1.08 tỷ','39.5%'],[C.green,'BHTN','0.20 tỷ','7.3%'],[C.neutral,'Khác','0.09 tỷ','3.4%']]))+
+        this.chartCard('5.5','Doanh Thu Theo Nhóm Dịch Vụ','Phân tích cơ cấu nguồn thu theo loại dịch vụ','barDtNhomDV',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]));
+      f.appendChild(r2);
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 5 · Cận Lâm Sàng NT ─
+    P['ngoaitru-5']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','6.1 · KPI – Chỉ Định & TAT'));
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Tổng Chỉ Định XN',val:'1,248',sub:'Xét nghiệm',delta:'5.2%',dir:'up',color:'info',icon:'flask'})+
+        this.kpi({label:'Chỉ Định CĐHA',val:'142',sub:'Chẩn đoán hình ảnh',delta:'3.8%',dir:'up',color:'primary',icon:'activity'})+
+        this.kpi({label:'TAT XN TB',val:'48',unit:'phút',sub:'Từ chỉ định → có kết quả',color:'success',icon:'clock'})+
+        this.kpi({label:'TAT CĐHA TB',val:'76',unit:'phút',sub:'Từ chỉ định → có kết quả',color:'success',icon:'clock'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('6.2','Xét Nghiệm Theo Nhóm','Số lượt chỉ định theo loại xét nghiệm','barXnNhom',
+          this.legendFlat([[C.maroon,'Số lượt']]),'Xem tất cả')+
+        this.chartCard('6.3','CĐHA Theo Nhóm','Số lượt chỉ định theo loại CĐHA','barCdhaNhom',
+          this.legendFlat([[C.maroon,'Số lượt']]),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NGOẠI TRÚ · Tab 6 · Dược NT ─
+    P['ngoaitru-6']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','7.1 · KPI – Thuốc Xuất / Phát'));
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'Thuốc Xuất Bán (Dịch Vụ)',val:'412',unit:'ĐV',sub:'Số lượng xuất bán thu phí DV',color:'info',icon:'pill'})+
+        this.kpi({label:'Thuốc Phát BHYT',val:'28,350',unit:'ĐV',sub:'Số lượng cấp phát theo chế độ BHYT',delta:'3.2%',dir:'up',color:'success',icon:'pill'})
+      ));
+      f.appendChild(this.div('sec-label','7.2 · Tỷ Lệ Xuất Giữa Các Kho'));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('','Phân Bố Xuất Kho Theo Kho','Số lượng và tỷ lệ thuốc xuất từng kho trong kỳ','barXuatKho',
+        this.legendFlat([[C.terra,'Xuất bán DV'],[C.blue,'Phát BHYT']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 3 · Phẫu Thuật ─
+    P['noitru-3']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Số Ca Phẫu Thuật',val:'12',sub:'tổng ca mổ trong kỳ',delta:'7.7%',dir:'up',color:'info',icon:'activity'})+
+        this.kpi({label:'Ca Cấp Cứu',val:'4',sub:'Tổng ca mổ',delta:'33.3%',dir:'up',color:'danger',icon:'alert'})+
+        this.kpi({label:'Ca Chương Trình',val:'8',sub:'66.7% tổng ca mổ',color:'info',icon:'activity'})+
+        this.kpi({label:'Đã Hoàn Thành',val:'5',sub:'5/12 ca trong ngày',color:'success',icon:'check'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('3.1','Phân Loại Ca Mổ','Cấp cứu với chương trình trong kỳ','donutPT',
+          this.legendRows([[C.danger,'Ca cấp cứu','4 ca','33.3%'],[C.blue,'Ca chương trình','8 ca','66.7%']]))+
+        this.chartCard('3.2','Xu Hướng Ca Mổ 30 Ngày','Tổng ca mổ theo ngày trong kỳ','lineCaMo',
+          this.legendFlat([[C.maroon,'Tổng ca mổ'],[C.danger,'Cấp cứu']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 4 · Doanh Thu NT (nội trú) ─
+    P['noitru-4']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'Tổng DT Nội Trú',val:'2.08',unit:'tỷ',sub:'Tháng 01/2025',delta:'12.4%',dir:'up',color:'success',icon:'dollar',spark:[1.6,1.75,1.7,1.9,1.85,1.98,2.08],sparkColor:C.green})+
+        this.kpi({label:'Chi Phí TB/BN Xuất Hiện',val:'3.58',unit:'triệu',sub:'VNĐ/BN ra viện',color:'info',icon:'user'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('5.2','Doanh Thu Theo Khoa','Tổng DT nội trú từng khoa trong kỳ','barDtKhoaNoiTru',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]))+
+        this.chartCard('5.3','Cơ Cấu Chi Phí Điều Trị','Tỷ trọng nhóm chi phí nội trú','donutChiPhiNoiTru',
+          this.legendRows([[C.maroon,'Thuốc','0.67 tỷ','32.0%'],[C.blue,'CLS (XN+CĐHA)','0.50 tỷ','24.0%'],[C.green,'Giường/Phòng','0.37 tỷ','18.0%'],[C.amber,'Phẫu thuật','0.33 tỷ','16.0%'],[C.neutral,'Vật tư & khác','0.21 tỷ','10.0%']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 5 · Dược NT (nội trú) ─
+    P['noitru-5']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'CP Thuốc TB/BN',val:'1.24',unit:'triệu',sub:'VNĐ/BN nội trú',color:'info',icon:'pill'})+
+        this.kpi({label:'Tỷ Lệ Sử Dụng Kháng Sinh',val:'58.3',unit:'%',sub:'BN có đơn KS / tổng BN',color:'warning',icon:'alert',prog:58.3})+
+        this.kpi({label:'Tỷ Lệ Bỏ Qua Cảnh Báo TT',val:'12.4',unit:'%',sub:'Đơn bỏ qua cảnh báo tương tác',color:'danger',icon:'alert',prog:12.4})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('6.2','Chi Phí Thuốc Theo Khoa','Tổng chi phí thuốc từng khoa trong kỳ','barCpThuocKhoa',
+          this.legendFlat([[C.maroon,'Chi phí (triệu VNĐ)']]),'Xem tất cả')+
+        this.chartCard('6.3','CP Thuốc Theo Nhóm Bệnh (ICD)','Top 10 nhóm bệnh tiêu thụ chi phí thuốc cao nhất','barCpThuocIcd',
+          this.legendFlat([[C.maroon,'Chi phí (triệu VNĐ)']]),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ NỘI TRÚ · Tab 6 · Cận Lâm Sàng NT (nội trú) ─
+    P['noitru-6']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','7.1 · KPI – Chỉ Định CLS'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Tổng Chỉ Định XN',val:'3,842',sub:'Xét nghiệm trong kỳ',delta:'8.2%',dir:'up',color:'info',icon:'flask'})+
+        this.kpi({label:'Tổng Chỉ Định CĐHA',val:'1,205',sub:'Chẩn đoán hình ảnh',delta:'5.4%',dir:'up',color:'primary',icon:'activity'})+
+        this.kpi({label:'CP CLS TB/BN',val:'485',unit:'nghìn',sub:'VNĐ/BN nội trú',color:'success',icon:'dollar'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('7.2','Xét Nghiệm Theo Nhóm','Phân tích XN theo loại – nội trú','barXnNhomNT',
+          this.legendFlat([[C.maroon,'Số lượt']]))+
+        this.chartCard('7.3','CĐHA Theo Nhóm','Phân tích CĐHA theo loại – nội trú','barCdhaNhomNT',
+          this.legendFlat([[C.maroon,'Số lượt']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ CLS · Tab 0 · Tổng Quan CLS ─
+    P['cls-0']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','1.1 · KPI – Tổng Quan Chỉ Định CLS'));
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Tổng Chỉ Định CLS',val:'1,248',sub:'Chỉ định phát sinh hôm nay',delta:'6.8%',dir:'up',color:'info',icon:'flask',spark:[980,1050,1010,1120,1080,1190,1248],sparkColor:C.blue})+
+        this.kpi({label:'BN Có Chỉ Định CLS',val:'892',sub:'Bệnh nhân trong ngày',delta:'5.2%',dir:'up',color:'primary',icon:'user'})+
+        this.kpi({label:'Đã Thực Hiện',val:'1,482',sub:'Chỉ định đã có kết quả',color:'success',icon:'check'})+
+        this.kpi({label:'Đang Chờ Xử Lý',val:'153',sub:'Chỉ định chưa có kết quả',color:'warning',icon:'clock'})
+      ));
+      f.appendChild(this.div('sec-label','1.2 · KPI – Tỷ Lệ Hoàn Tất & Doanh Thu CLS'));
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'Tỷ Lệ Hoàn Tất Trong TAT Chuẩn',sub2:'Chỉ định xử lý trong X phút chuẩn (cấu hình)',val:'90.7',unit:'%',sub:'1.482/1.635 hoàn tất – 153 đang chờ',color:'success',icon:'check',prog:90.7})+
+        this.kpi({label:'Doanh Thu CLS Hôm Nay',val:'958',unit:'triệu',sub:'Thu từ toàn bộ dịch vụ cận lâm sàng',delta:'12.3%',dir:'up',color:'info',icon:'dollar'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('1.3','Xu Hướng Chỉ Định CLS – 30 Ngày','Số lượng chỉ định XN, CĐHA và CLD khác theo ngày trong kỳ','lineClsTrend',
+          this.legendFlat([[C.maroon,'Xét nghiệm'],[C.blue,'CĐHA'],[C.green,'Nội soi & TDCN']]))+
+        this.chartCard('1.4','Cơ Cấu Chỉ Định CLS','Tỷ trọng theo loại dịch vụ – hôm nay','donutCls',
+          this.legendRows([[C.maroon,'Xét nghiệm','1.248 lượt','76.3%'],[C.blue,'Chẩn đoán hình ảnh','312 lượt','19.1%'],[C.green,'Nội soi','48 lượt','2.9%'],[C.amber,'Thăm dò CN','27 lượt','1.7%']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ CLS · Tab 1 · Xét Nghiệm (LIS) ─
+    P['cls-1']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','2.1 · KPI – Tổng Quan Xét Nghiệm'));
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Tổng Chỉ Định XN',val:'32,450',sub:'Xét nghiệm trong kỳ',delta:'5.2%',dir:'up',color:'info',icon:'flask'})+
+        this.kpi({label:'BN Có Chỉ Định XN',val:'14,280',sub:'Bệnh nhân trong kỳ',delta:'3.8%',dir:'up',color:'primary',icon:'user'})+
+        this.kpi({label:'TAT Trung Bình',val:'42',unit:'phút',sub:'Từ chỉ định → có kết quả',color:'success',icon:'clock'})+
+        this.kpi({label:'Chỉ Định Quá TAT',val:'1,845',sub:'Vượt thời gian chuẩn (5.7%)',color:'danger',icon:'alert'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('2.2','Số Lượng XN Theo Khoa','Số chỉ định xét nghiệm từng khoa lâm sàng trong kỳ','barXnKhoa',
+          this.legendFlat([[C.maroon,'Số lượng chỉ định']]))+
+        this.chartCard('2.3','Thực Hiện Theo Máy','Số lượng mẫu xét nghiệm thực hiện trên từng máy phân tích','barXnMay',
+          this.legendFlat([[C.maroon,'Số lượng mẫu']]));
+      f.appendChild(r);
+      f.appendChild(this.div('',this.tableCard('2.4','TAT Theo Loại Xét Nghiệm','Thời gian trả kết quả trung bình – sort theo TAT giảm dần',
+        ['Loại Xét Nghiệm','Số Lượng','TAT TB','TAT Tối Đa','% Vượt Chuẩn'],
+        [['Vi sinh','2,140','18.4 giờ','72 giờ','8.4%'],['Miễn dịch','4,820','68′','185′','7.2%'],['Sinh hoá','11,240','52′','142′','6.1%'],['Đông máu','2,860','40′','98′','4.8%'],['Nước tiểu','4,310','35′','86′','3.6%'],['Huyết học','7,080','28′','75′','2.9%']].map(([n,s,tb,max,vc])=>{
+          const pct=parseFloat(vc);
+          const cl=pct>7?'badge-danger':pct>4?'badge-warning':'badge-success';
+          return `<tr><td><strong>${n}</strong></td><td>${s}</td><td><strong>${tb}</strong></td><td>${max}</td><td><span class="badge ${cl}"><span class="dot"></span>${vc}</span></td></tr>`;
+        }).join(''),'Xem tất cả')));
+      return f;
+    };
+
+    // ─ CLS · Tab 2 · Chẩn Đoán Hình Ảnh ─
+    P['cls-2']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','3.1 · KPI – Tổng Quan Chẩn Đoán Hình Ảnh'));
+      f.appendChild(this.div('kpi-grid c5',
+        this.kpi({label:'Tổng Ca CĐHA',val:'5,820',sub:'Ca thực hiện trong kỳ',delta:'6.8%',dir:'up',color:'info',icon:'activity'})+
+        this.kpi({label:'X - Quang (XQ)',val:'2,650',sub:'Ca chụp X-quang',delta:'4.2%',dir:'up',color:'primary',icon:'activity'})+
+        this.kpi({label:'CT Scanner',val:'1,050',sub:'Ca chụp cắt lớp',delta:'8.5%',dir:'up',color:'warning',icon:'activity'})+
+        this.kpi({label:'Siêu Âm (SA)',val:'1,720',sub:'Ca siêu âm các loại',delta:'5.1%',dir:'up',color:'success',icon:'activity'})+
+        this.kpi({label:'MRI',val:'400',sub:'Ca cộng hưởng từ',delta:'12.4%',dir:'up',color:'danger',icon:'activity'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('3.2','Tỷ Lệ Sử Dụng Máy CĐHA','% thời gian hoạt động thực tế / tổng thời gian khả dụng – đỏ ≥ 80% (quá tải) · vàng ≥ 65%','barMayCdha',
+          this.legendFlat([[C.danger,'≥ 80% (quá tải)'],[C.amber,'≥ 65%'],[C.green,'< 65%']]))+
+        this.chartCard('3.3','Cơ Cấu Loại CĐHA','Tỷ trọng số ca theo phương thức chụp – kỳ hiện tại','donutCdha',
+          this.legendRows([[C.maroon,'X - Quang','2.650 ca','45.5%'],[C.blue,'Siêu âm','1.720 ca','29.6%'],[C.green,'CT Scanner','1.050 ca','18.0%'],[C.amber,'MRI','400 ca','6.9%']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ CLS · Tab 3 · Doanh Thu CLS ─
+    P['cls-3']=()=>{
+      const f=document.createDocumentFragment();
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('4.1','Doanh Thu Theo Loại Dịch Vụ CLS','Tổng DT từng nhóm dịch vụ CLS – sort giảm dần','barDtLoaiCls',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]))+
+        this.chartCard('4.2','Doanh Thu Theo Máy CĐHA','Doanh thu phát sinh từ từng thiết bị – hiệu quả tài chính đầu tư','barDtMayCdha',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]));
+      f.appendChild(r);
+      const r2=this.div('','');
+      r2.innerHTML=this.chartCard('4.3','Doanh Thu CLS Theo Khoa','Tổng DT CLS phát sinh từ chỉ định của từng khoa lâm sàng trong kỳ','barDtClsKhoa',
+        this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]));
+      f.appendChild(r2);
+      return f;
+    };
+
+    // ─ CLS · Tab 4 · Nội Soi ─
+    P['cls-4']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'Số Ca Nội Soi',val:'28',sub:'ca thực hiện hôm nay',delta:'3.7%',dir:'up',color:'info',icon:'activity'})+
+        this.kpi({label:'Nội Soi Tiêu Hoá',val:'18',sub:'dạ dày, đại tràng',color:'primary',icon:'activity'})+
+        this.kpi({label:'Phát Hiện Bất Thường',val:'42.9',unit:'%',sub:'ca có tổn thương',color:'warning',icon:'alert'})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('4.1','Số Ca Theo Loại Nội Soi','Phân bổ ca theo kỹ thuật – hôm nay','barNoiSoi',
+          this.legendFlat([[C.maroon,'Số ca']]))+
+        this.tableCard('4.2','Chi Tiết Theo Loại Nội Soi','Số ca và phát hiện bất thường – hôm nay',
+          ['Loại Nội Soi','Số Ca','Bất Thường','Tỷ Lệ'],
+          [['Nội soi dạ dày','12','6','50%'],['Nội soi đại tràng','6','3','50%'],['Nội soi phế quản','5','1','20%'],['Nội soi tai mũi họng','5','2','40%']].map(([n,s,b,t])=>`<tr><td><strong>${n}</strong></td><td>${s}</td><td>${b}</td><td><span class="badge badge-warning">${t}</span></td></tr>`).join(''),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ CLS · Tab 5 · Thăm Dò CN ─
+    P['cls-5']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c4',
+        this.kpi({label:'Tổng Lượt Thăm Dò',val:'64',sub:'lượt thực hiện hôm nay',color:'info',icon:'activity'})+
+        this.kpi({label:'Điện Tim (ECG)',val:'38',sub:'lượt đo',color:'primary',icon:'activity'})+
+        this.kpi({label:'Điện Não (EEG)',val:'12',sub:'lượt đo',color:'success',icon:'activity'})+
+        this.kpi({label:'Đo Loãng Xương',val:'14',sub:'lượt đo mật độ xương',color:'warning',icon:'activity'})
+      ));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('5.1','Số Lượt Theo Loại Thăm Dò Chức Năng','Phân bổ lượt thực hiện theo kỹ thuật – hôm nay','barTdcn',
+        this.legendFlat([[C.maroon,'Số lượt']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 2 · Sử Dụng Thuốc ─
+    P['duoc-2']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','3.1 · KPI – Chi Phí Thuốc Tổng Quan'));
+      f.appendChild(this.div('kpi-grid c3',
+        this.kpi({label:'CP Thuốc Hôm Nay',val:'182',unit:'triệu',sub:'Xuất bán + cấp phát',delta:'5.4%',dir:'up',color:'success',icon:'dollar'})+
+        this.kpi({label:'CP Thuốc TB/BN Nội Trú',val:'1.24',unit:'triệu',sub:'VNĐ/BN điều trị nội trú',color:'info',icon:'pill'})+
+        this.kpi({label:'CP Thuốc TB/BN Ngoại Trú',val:'285',unit:'nghìn',sub:'VNĐ/lượt khám ngoại trú',color:'primary',icon:'pill'})
+      ));
+      f.appendChild(this.div('sec-label','3.2 · KPI – Tỷ Lệ Thuốc Đặc Thù'));
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'Tỷ Lệ Sử Dụng Kháng Sinh',sub2:'BN có đơn KS / tổng BN điều trị',val:'58.3',unit:'%',sub:'Mục tiêu: ≤ 50%',color:'warning',icon:'alert',prog:58.3})+
+        this.kpi({label:'Tỷ Lệ Sử Dụng Thuốc Đặc Trị',sub2:'BN có thuốc đặc trị / tổng BN điều trị',val:'22.7',unit:'%',sub:'Giám sát chặt theo phác đồ',color:'danger',icon:'alert',prog:22.7})
+      ));
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.tableCard('3.3','Top 10 Thuốc Sử Dụng Nhiều Nhất','Sort theo số lượng giảm dần trong kỳ',
+          ['Tên Thuốc','Nhóm Dược Quản Lý','Số Lượng','Giá Trị (VNĐ)'],
+          [['Natri Clorid 0.9% 500ml','Dịch truyền','12,400 chai','86,800,000'],['Paracetamol 500mg','Giảm đau – hạ sốt','9,850 viên','19,700,000'],['Amoxicillin 500mg','Kháng sinh','7,420 viên','44,520,000'],['Omeprazole 20mg','Tiêu hoá','6,180 viên','37,080,000'],['Amlodipine 5mg','Tim mạch','5,640 viên','28,200,000'],['Metformin 850mg','Nội tiết','5,210 viên','26,050,000'],['Ceftriaxone 1g','Kháng sinh','3,860 lọ','196,860,000'],['Atorvastatin 20mg','Tim mạch','3,420 viên','23,940,000'],['Enoxaparin 40mg','Chống đông','1,840 ống','147,200,000'],['Midazolam 5mg','GN – HT','920 ống','36,800,000']].map(([n,g,l,v])=>`<tr><td><strong>${n}</strong></td><td>${g}</td><td><strong>${l}</strong></td><td>${v}</td></tr>`).join(''),'Xem tất cả')+
+        this.chartCard('3.4','Phân Tích Theo Nhóm Thuốc','Tỷ trọng chi phí theo nhóm dược lý','donutSuDung',
+          this.legendRows([[C.maroon,'Kháng sinh','','28%'],[C.blue,'Tim mạch','','22%'],[C.green,'Nội tiết','','18%'],[C.amber,'Ung thư','','12%'],[C.terra,'Gây mê – HS','','8%'],[C.danger,'GN – HT','','4%'],[C.neutral,'Khác','','8%']]));
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 3 · Thuốc Theo Khoa ─
+    P['duoc-3']=()=>{
+      const f=document.createDocumentFragment();
+      const r1=this.div('row2 r55','');
+      r1.innerHTML=
+        this.chartCard('4.1','Chi Phí Thuốc Theo Khoa','Tổng chi phí thuốc từng khoa trong kỳ','barCpKhoa',
+          this.legendFlat([[C.maroon,'Chi phí (triệu VNĐ)']]))+
+        this.chartCard('4.2','Khoa Dùng Thuốc Kháng Sinh Cao Nhất','Top khoa theo CP kháng sinh – AMD program','barKsKhoa',
+          this.legendFlat([[C.terra,'Chi phí KS (triệu VNĐ)']]));
+      f.appendChild(r1);
+      const r=this.div('','');
+      r.innerHTML=
+        this.tableCard('4.3','So Sánh CP Thuốc – Tháng Này Với Tháng Trước','Phát hiện khoa tăng chi phí thuốc đột biến',
+          ['Khoa','Tháng Này','Tháng Trước','% Thay Đổi'],
+          [['Phổi','168 triệu','124 triệu',35.5],['Ung Bướu','248 triệu','195 triệu',27.2],['Tim Mạch','320 triệu','285 triệu',12.3],['Ngoại TH','268 triệu','252 triệu',6.3],['Thần Kinh','186 triệu','178 triệu',4.5],['Chỉnh Hình','132 triệu','128 triệu',3.1],['Nhi Khoa','142 triệu','138 triệu',2.9],['Sản Khoa','118 triệu','115 triệu',2.6],['Nội Tiết','156 triệu','162 triệu',-3.7],['Tiêu Hoá','96 triệu','102 triệu',-5.9]].map(([k,t,p,c])=>{
+            const cl=c>20?'badge-danger':c>5?'badge-warning':c<0?'badge-success':'badge-neutral';
+            const sign=c>0?'▲ +':c<0?'▼ ':'';
+            return `<tr><td><strong>${k}</strong></td><td><strong>${t}</strong></td><td>${p}</td><td><span class="badge ${cl}">${sign}${Math.abs(c)}%</span></td></tr>`;
+          }).join(''),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 4 · Nhập Xuất Tồn ─
+    P['duoc-4']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('sec-label','5.1 · KPI – Tổng Quan Nhập Xuất'));
+      f.appendChild(this.div('kpi-grid c5',
+        this.kpi({label:'Tổng Nhập Kho',val:'8.4',unit:'tỷ',sub:'Giá trị nhập trong kỳ',color:'info',icon:'stack'})+
+        this.kpi({label:'Tổng Xuất Kho',val:'6.2',unit:'tỷ',sub:'Giá trị xuất trong kỳ',color:'success',icon:'pill'})+
+        this.kpi({label:'Xuất Nội Bộ',val:'0.8',unit:'tỷ',sub:'Chuyển giữa các kho',color:'primary',icon:'activity'})+
+        this.kpi({label:'Xuất Cho BN',val:'5.4',unit:'tỷ',sub:'Cấp phát + bán cho BN',color:'warning',icon:'user'})+
+        this.kpi({label:'Hàng Trả Lại',val:'0.15',unit:'tỷ',sub:'Hoàn trả nhà cung cấp',color:'slate',icon:'x'})
+      ));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('5.2','Nhập/Xuất Theo Kho','So sánh giá trị nhập và xuất từng kho trong kỳ','barNhapXuatKho',
+        this.legendFlat([[C.blue,'Nhập kho'],[C.terra,'Xuất kho']]));
+      r.querySelector('.chart-h').style.height='320px';
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 5 · Vật Tư Tiêu Hao ─
+    P['duoc-5']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('kpi-grid c2',
+        this.kpi({label:'CP Vật Tư TB/Ca Mổ',val:'2.85',unit:'triệu',sub:'VNĐ/ca phẫu thuật hoàn thành',color:'info',icon:'activity'})+
+        this.kpi({label:'Tổng Vật Tư Đã Xuất',val:'4,280',unit:'ĐV',sub:'Số lượng xuất trong kỳ',color:'success',icon:'stack'})
+      ));
+      f.appendChild(this.div('',this.tableCard('6.1','Top 10 Vật Tư Tiêu Hao Nhiều Nhất','Sort theo số lượng sử dụng giảm dần trong kỳ',
+        ['Tên Vật Tư','Nhóm','Số Lượng','Giá Trị'],
+        [['Bơm tiêm 5ml','Bơm kim tiêm','12,400 cái','18,600,000'],['Găng tay y tế','Bảo hộ','8,600 đôi','25,800,000'],['Gạc vô trùng 10x10','Băng gạc','6,400 miếng','9,600,000'],['Kim luồn tĩnh mạch 20G','Kim truyền','3,200 cái','41,600,000'],['Dây truyền dịch','Dây truyền','2,980 bộ','26,820,000'],['Bơm tiêm 10ml','Bơm kim tiêm','2,640 cái','5,280,000'],['Băng keo y tế','Băng gạc','1,860 cuộn','7,440,000'],['Ống thông tiểu Foley 16F','Ống thông','980 cái','19,600,000'],['Chỉ phẫu thuật Vicryl 3-0','Vật tư PT','740 tép','48,100,000'],['Dao mổ điện (đầu đốt)','Vật tư PT','420 cái','63,000,000']].map(([n,g,l,v])=>`<tr><td><strong>${n}</strong></td><td>${g}</td><td><strong>${l}</strong></td><td>${v}</td></tr>`).join(''),'Xem tất cả')));
+      return f;
+    };
+
+    // ─ DƯỢC · Tab 6 · Thuốc Kiểm Soát ─
+    P['duoc-6']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('',this.tableCard('7.1','Tồn Kho Gây Nghiện – Hướng Thần','Số lượng tồn tại thời điểm hiện tại',
+        ['Tên Thuốc','Phân Loại','Số Lô','Kho','Số Lượng Tồn'],
+        [['Morphin 10mg/ml','Gây nghiện','L2024-12','Kho TT','82 ống'],['Fentanyl 0.1mg','Gây nghiện','L2024-11','Kho PT','46 ống'],['Pethidin 100mg','Gây nghiện','L2024-10','Kho TT','58 ống'],['Midazolam 5mg','Hướng thần','L2025-01','Kho PT','124 ống'],['Diazepam 10mg','Hướng thần','L2024-12','Kho TT','210 ống'],['Phenobarbital 100mg','Hướng thần','L2024-09','Kho NT','168 viên']].map(([n,p,lo,k,t])=>`<tr><td><strong>${n}</strong></td><td><span class="badge ${p==='Gây nghiện'?'badge-danger':'badge-warning'}">${p}</span></td><td><span class="code">${lo}</span></td><td>${k}</td><td><strong>${t}</strong></td></tr>`).join(''),'Xem tất cả')));
+      f.appendChild(this.div('',this.tableCard('7.2','Xuất Kho Gây Nghiện – Hướng Thần','Số lượng cấp phát trong kỳ',
+        ['Tên Thuốc','Khoa Sử Dụng','Số Lượng Xuất'],
+        [['Fentanyl 0.1mg','Gây Mê – Hồi Sức','38 ống'],['Midazolam 5mg','Hồi Sức Tích Cực','46 ống'],['Diazepam 10mg','Thần Kinh','68 ống'],['Morphin 10mg/ml','Ung Bướu','24 ống'],['Phenobarbital 100mg','Thần Kinh','34 viên'],['Pethidin 100mg','Sản Khoa','12 ống']].map(([n,k,x])=>`<tr><td><strong>${n}</strong></td><td>${k}</td><td><strong>${x}</strong></td></tr>`).join(''),'Xem tất cả')));
+      return f;
+    };
+
+    // ─ TÀI CHÍNH · Tab 2 · Nhóm Dịch Vụ ─
+    P['taichinh-2']=()=>{
+      const f=document.createDocumentFragment();
+      const r=this.div('row2 r55','');
+      r.innerHTML=
+        this.chartCard('3.1','Doanh Thu Theo Nhóm Dịch Vụ','Phân tích đóng góp của từng loại dịch vụ y tế','barNhomDV',
+          this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']])).replace('class="chart-h"','class="chart-h" style="height:400px"')+
+        this.tableCard('3.2','Top 10 Dịch Vụ DT Cao Nhất','Dịch vụ đóng góp doanh thu lớn nhất trong kỳ',
+          ['Tên Dịch Vụ','Nhóm DV','Doanh Thu','Số Lượt','Trạng Thái'],
+          [['Chụp CT 64 lát có cản quang','CĐHA','186 triệu','312','up'],['MRI sọ não','CĐHA','164 triệu','96','up'],['PT nội soi ổ bụng','Phẫu thuật','152 triệu','38','flat'],['XN sinh hoá 27 chỉ số','Xét nghiệm','138 triệu','2,140','up'],['Khám chuyên khoa yêu cầu','Khám bệnh','126 triệu','1,680','up'],['Siêu âm tim Doppler màu','CĐHA','112 triệu','420','flat'],['Nội soi dạ dày gây mê','Thủ thuật','98 triệu','145','up'],['Giường dịch vụ phòng đơn','Giường NT','92 triệu','230','flat'],['XN marker ung thư','Xét nghiệm','86 triệu','540','up'],['Thay khớp háng nhân tạo','Phẫu thuật','84 triệu','6','down']].map(([n,g,v,l,st])=>{
+            const b=st==='up'?'<span class="badge badge-success"><span class="dot"></span>Tăng</span>':st==='down'?'<span class="badge badge-danger"><span class="dot"></span>Giảm</span>':'<span class="badge badge-neutral"><span class="dot"></span>Ổn định</span>';
+            return `<tr><td><strong>${n}</strong></td><td>${g}</td><td><strong>${v}</strong></td><td>${l}</td><td>${b}</td></tr>`;
+          }).join(''),'Xem tất cả');
+      f.appendChild(r);
+      return f;
+    };
+
+    // ─ TÀI CHÍNH · Tab 3 · Theo Khoa ─
+    P['taichinh-3']=()=>{
+      const f=document.createDocumentFragment();
+      const r1=this.div('','');
+      r1.innerHTML=this.chartCard('4.1','Doanh Thu Từng Khoa','Top 10 khoa theo DT + tỷ trọng – tháng 01/2025','barDtKhoa',
+        this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']])).replace('class="chart-h"','class="chart-h" style="height:340px"');
+      f.appendChild(r1);
+      f.appendChild(this.div('',this.tableCard('4.2 – 4.3','So Sánh & Tăng Trưởng Theo Khoa','DT kỳ này với kỳ trước – sort theo DT giảm dần',
+        ['#','Khoa','Doanh Thu','Tỷ Trọng','% So Kỳ Trước'],
+        [['Tim Mạch','1,850 triệu','16.4%',12.3],['Ngoại TH','1,620 triệu','14.4%',8.6],['Ung Bướu','1,480 triệu','13.1%',15.2],['Thần Kinh','1,240 triệu','11.0%',4.8],['Sản Khoa','1,100 triệu','9.8%',6.2],['Nhi Khoa','980 triệu','8.7%',-2.4],['Nội Tiết','890 triệu','7.9%',3.1],['Phổi','820 triệu','7.3%',18.4],['Chỉnh Hình','760 triệu','6.7%',1.9],['Tiêu Hoá','640 triệu','5.7%',-4.2]].map(([k,v,p,c],i)=>{
+          const cl=c<0?'badge-danger':c>10?'badge-success':'badge-neutral';
+          const sign=c>0?'▲ +':'▼ ';
+          return `<tr><td><span class="rank${i<3?' top3':''}">${i+1}</span></td><td><strong>${k}</strong></td><td><strong>${v}</strong></td><td>${p}</td><td><span class="badge ${cl}">${sign}${Math.abs(c)}%</span></td></tr>`;
+        }).join(''),'Xem tất cả')));
+      return f;
+    };
+
+    // ─ TÀI CHÍNH · Tab 4 · Theo Bác Sĩ ─
+    P['taichinh-4']=()=>{
+      const f=document.createDocumentFragment();
+      f.appendChild(this.div('',this.tableCard('5.1','Doanh Thu Theo Bác Sĩ','Top 10 bác sĩ DT cao nhất – sort giảm dần',
+        ['#','Bác Sĩ','Khoa','Doanh Thu','Số Lượt Khám'],
+        [['Hoàng Văn Nam','Tim Mạch','480 triệu','642'],['Trần Văn Hùng','Nội Tổng Quát','420 triệu','864'],['Phạm Quốc An','Cơ Xương Khớp','380 triệu','718'],['Đỗ Hồng Sơn','Nội Tiết','340 triệu','596'],['Lê Thị Mai','Tai Mũi Họng','310 triệu','802'],['Bùi Thị Lan','Tiêu Hoá','280 triệu','534'],['Vũ Đình Long','Mắt','250 triệu','488'],['Nguyễn Thu Hà','Da Liễu','220 triệu','512'],['Ngô Văn Khánh','Thần Kinh','190 triệu','426'],['Đặng Thị Hồng','Sản Khoa','160 triệu','390']].map(([n,k,v,l],i)=>`<tr><td><span class="rank${i<3?' top3':''}">${i+1}</span></td><td><strong>BS. ${n}</strong></td><td>${k}</td><td><strong>${v}</strong></td><td>${l}</td></tr>`).join(''),'Xem tất cả')));
+      const r=this.div('','');
+      r.innerHTML=this.chartCard('5.2','Top 10 Bác Sĩ – Biểu Đồ','Doanh thu bác sĩ trong kỳ – thanh ngang','barDtBs',
+        this.legendFlat([[C.maroon,'Doanh thu (triệu VNĐ)']]),'').replace('class="chart-h"','class="chart-h" style="height:380px"');
+      f.appendChild(r);
+      return f;
+    };
+
+    return P;
+  }
+
+  // ============ CHART INIT ============
+  mkChart(id,type,labels,datasets,opts={}){
+    const c=this.root.querySelector('#'+id); if(!c||!window.Chart)return;
+    const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},animation:{duration:600,easing:'easeOutQuart'}};
+    const ch=new Chart(c,{type,data:{labels,datasets},options:{...base,...opts,plugins:{...base.plugins,...(opts.plugins||{})}}});
+    this.charts[id]=ch; return ch;
+  }
+
+  initCharts(key){
+    const C=this.C, GRID=this.GRID;
+    const noXgrid={grid:{display:false},border:{display:false}};
+    const yGrid={grid:{color:GRID},border:{display:false}};
+    if(key==='ngoaitru-0'){
+      this.mkChart('donutNT','doughnut',['BHYT','Dịch Vụ','BHTN','Miễn Phí'],
+        [{data:[312,168,28,16],backgroundColor:[C.blue,C.terra,C.green,C.neutral],borderWidth:0,hoverOffset:6}],{cutout:'70%'});
+    }
+    else if(key==='ngoaitru-7'){
+      const hours=[...Array(24)].map((_,i)=>`${i}h`);
+      const d=[0,0,0,0,0,5,18,52,78,85,72,65,42,55,68,74,62,48,32,20,12,6,2,0];
+      this.mkChart('lineHourNT','line',hours,[{data:d,borderColor:C.blue,backgroundColor:'rgba(29,99,196,.08)',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:C.blue,pointHoverBorderColor:'#fff',pointHoverBorderWidth:2,fill:true}],
+        {interaction:{mode:'index',intersect:false},hover:{mode:'index',intersect:false},
+         plugins:{tooltip:{enabled:true,mode:'index',intersect:false,callbacks:{title:items=>'Khung giờ '+items[0].label,label:c=>c.raw+' lượt đăng ký'}}},
+         scales:{x:{...noXgrid,ticks:{maxTicksLimit:12,font:{size:9}}},y:{...yGrid,min:0}}});
+      // heatmap
+      const hmDays=['T2','T3','T4','T5','T6','T7','CN'];
+      const hmHours=['7h','8h','9h','10h','11h','12h','13h','14h','15h','16h','17h','18h'];
+      const hmData=[[20,18,22,19,21,12,8],[45,42,48,44,46,28,15],[72,68,75,71,74,45,22],[85,80,88,83,86,55,30],[78,74,80,76,79,50,28],[62,58,65,61,64,38,20],[55,52,58,54,57,35,18],[70,66,72,68,71,42,25],[80,76,83,79,82,52,30],[65,61,68,64,67,40,22],[45,42,48,44,46,28,15],[25,22,28,24,26,15,8]];
+      const maxHM=90;
+      const hmColor=(v)=>{const r=v/maxHM;if(r<.15)return{bg:'#f9f9f8',c:'#a4a4a0'};if(r<.35)return{bg:'#f6dede',c:'#881c1c'};if(r<.55)return{bg:'#dd9292',c:'#fff'};if(r<.75)return{bg:'#c95c5c',c:'#fff'};return{bg:'#881c1c',c:'#fff'};};
+      const hm=this.root.querySelector('#hmNT'); if(hm){
+        hm.innerHTML='<div class="hm-h"></div>'+hmDays.map(d=>`<div class="hm-h">${d}</div>`).join('');
+        hmHours.forEach((h,i)=>{hm.innerHTML+=`<div class="hm-hl">${h}</div>`;hmDays.forEach((_,j)=>{const v=hmData[i][j];const {bg,c}=hmColor(v);hm.innerHTML+=`<div class="hm-cell" style="background:${bg};color:${c}" title="${h} ${hmDays[j]}: ${v} lượt">${v}</div>`;});});
+      }
+    }
+    else if(key==='noitru-1'){
+      const kh=['Tim Mạch','Thần Kinh','Nội Tiết','Ngoại TH','Ung Bướu','Nhi','Sản','Chỉnh Hình','Phổi'];
+      this.mkChart('barLosKhoa','bar',kh,[
+        {label:'LOS TB',data:[8.4,7.2,6.1,5.8,9.2,4.3,3.8,6.5,7.1],backgroundColor:C.blue,borderRadius:5,maxBarThickness:48,categoryPercentage:0.72,barPercentage:0.92,yAxisID:'y'},
+        {label:'Tử vong',data:[2,1,0,0,3,0,1,0,1],backgroundColor:C.danger,borderRadius:5,maxBarThickness:48,categoryPercentage:0.72,barPercentage:0.92,yAxisID:'y1'}
+      ],{scales:{x:{...noXgrid,ticks:{font:{size:10}}},y:{...yGrid,position:'left'},y1:{position:'right',grid:{display:false},border:{display:false},min:0,max:10}}});
+    }
+    else if(key==='noitru-2'){
+      const kh=['Tim Mạch','Ung Bướu','Thần Kinh','Phổi','Chỉnh Hình','Nội Tiết','Ngoại TH','Sản','Nhi'];
+      this.mkChart('barLosKhoa2','bar',kh,[{data:[8.4,9.2,7.2,7.1,6.5,6.1,5.8,3.8,4.3],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:18}],
+        {indexAxis:'y',scales:{x:{...yGrid},y:{...noXgrid,ticks:{font:{size:10.5}}}}});
+    }
+    else if(key==='capcuu-0'){
+      this.mkChart('pieCC','doughnut',['Về nhà','Nhập viện','Chuyển khoa','Xin về/CV','Tử vong'],
+        [{data:[48,18,22,8,4],backgroundColor:[C.blue,C.green,C.amber,C.neutral,C.danger],borderWidth:0,hoverOffset:5}],{cutout:'66%'});
+      const hrs=[...Array(24)].map((_,i)=>`${i}h`);
+      const d=[0,0,0,1,0,2,1,3,4,2,3,2,1,2,3,4,5,3,2,1,2,1,0,0];
+      this.mkChart('lineCC','line',hrs,[{data:d,borderColor:C.danger,backgroundColor:'rgba(198,40,40,.08)',borderWidth:2,tension:.4,pointRadius:0,fill:true}],
+        {scales:{x:{...noXgrid,ticks:{maxTicksLimit:12,font:{size:9}}},y:{...yGrid,min:0}}});
+    }
+    else if(key==='taichinh-1'){
+      const days=[...Array(30)].map((_,i)=>{const dd=new Date(2025,0,1+i);return`${dd.getDate()}/${dd.getMonth()+1}`;});
+      const seed=(a)=>days.map((_,i)=>Math.round(a+ (Math.sin(i*1.3)*0.5+0.5)*a*0.4 ));
+      this.mkChart('lineTC','line',days,[
+        {label:'BHYT',data:seed(60),borderColor:C.blue,borderWidth:1.8,tension:.4,pointRadius:0},
+        {label:'DV',data:seed(42),borderColor:C.terra,borderWidth:1.8,tension:.4,pointRadius:0},
+        {label:'BHTN',data:seed(12),borderColor:C.green,borderWidth:1.8,tension:.4,pointRadius:0},
+        {label:'Công ty',data:seed(4),borderColor:C.amber,borderWidth:1.8,tension:.4,pointRadius:0},
+      ],{scales:{x:{...noXgrid,ticks:{maxTicksLimit:8,font:{size:9}}},y:{...yGrid,ticks:{callback:v=>v+'tr'}}},plugins:{tooltip:{mode:'index',intersect:false}}});
+      this.mkChart('donutTC','doughnut',['BHYT','Dịch Vụ','BHTN','Công ty','Khác'],
+        [{data:[49.8,39.5,7.3,2.4,1.0],backgroundColor:[C.blue,C.terra,C.green,C.amber,C.neutral],borderWidth:0,hoverOffset:6}],{cutout:'70%'});
+    }
+    else if(key==='duoc-0'){
+      const kh=['Kho TT','Kho NT','Kho NT2','Kho CC','Kho PT','Kho NgoaiTru'];
+      this.mkChart('barKho','bar',kh,[{data:[5.2,2.8,1.8,0.8,1.2,0.6],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:38}],
+        {scales:{x:{...noXgrid,ticks:{font:{size:10}}},y:{...yGrid,ticks:{callback:v=>v+'tỷ'}}},plugins:{tooltip:{callbacks:{label:c=>`${c.raw} tỷ VNĐ`}}}});
+    }
+  }
+
+  initChartsExt(key){
+    const C=this.C, GRID=this.GRID;
+    const noX={grid:{display:false},border:{display:false}};
+    const yG={grid:{color:GRID},border:{display:false}};
+    const days30=[...Array(30)].map((_,i)=>{const d=new Date(2025,0,1+i);return `${d.getDate()}/${d.getMonth()+1}`;});
+    const wave=(base,amp,ph)=>days30.map((_,i)=>Math.round(base+(Math.sin(i*0.5+ph)*0.5+0.5)*amp));
+    const barV=(id,labels,data,color,opt={})=>this.mkChart(id,'bar',labels,[{data,backgroundColor:color,borderRadius:5,maxBarThickness:opt.mbt||40}],
+      {scales:{x:{...noX,ticks:{font:{size:9.5}}},y:{...yG,ticks:opt.yticks}},plugins:opt.tt?{tooltip:opt.tt}:{}});
+    const barH=(id,labels,data,color,opt={})=>this.mkChart(id,'bar',labels,[{data,backgroundColor:color,borderRadius:5,maxBarThickness:18}],
+      {indexAxis:'y',scales:{x:{...yG,ticks:opt.xticks},y:{...noX,ticks:{font:{size:10}}}},plugins:opt.tt?{tooltip:opt.tt}:{}});
+    const lineA=(id,labels,data,color,rgba)=>this.mkChart(id,'line',labels,[{data,borderColor:color,backgroundColor:rgba,borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:true}],
+      {scales:{x:{...noX,ticks:{maxTicksLimit:8,font:{size:9}}},y:{...yG}}});
+    const donut=(id,labels,data,colors,cut)=>this.mkChart(id,'doughnut',labels,[{data,backgroundColor:colors,borderWidth:0,hoverOffset:6}],{cutout:cut||'70%'});
+    const grouped=(id,labels,sets,opt={})=>this.mkChart(id,'bar',labels,sets.map(s=>({label:s[0],data:s[1],backgroundColor:s[2],borderRadius:4,maxBarThickness:opt.mbt||20})),
+      {scales:{x:{...noX,ticks:{font:{size:9.5}}},y:{...yG,ticks:opt.yticks}},plugins:{tooltip:{mode:'index',intersect:false}}});
+
+    const M={
+      'ngoaitru-1':()=>{
+        const labels=['PK Nội TH','PK Tim Mạch','PK Nhi','PK Sản','PK Thần Kinh','PK Nội Tiết','PK Ung Bướu','PK Mắt'];
+        this.mkChart('barPKObj','bar',labels,[
+          {label:'BHYT',data:[31,27,22,18,19,17,16,15],backgroundColor:C.blue,borderRadius:4,maxBarThickness:64,stack:'s'},
+          {label:'Dịch vụ',data:[15,12,11,11,9,8,7,6,],backgroundColor:C.terra,borderRadius:4,maxBarThickness:64,stack:'s'},
+          {label:'BHTN',data:[4,3,3,2,2,2,2,2],backgroundColor:C.green,borderRadius:4,maxBarThickness:64,stack:'s'},
+          {label:'Miễn phí',data:[2,2,2,2,1,1,1,1],backgroundColor:C.neutral,borderRadius:4,maxBarThickness:64,stack:'s'}
+        ],{scales:{x:{stacked:true,grid:{display:false},border:{display:false},ticks:{font:{size:10.5}}},y:{stacked:true,grid:{color:GRID},border:{display:false}}},plugins:{tooltip:{mode:'index',intersect:false}}});
+      },
+      'ngoaitru-3':()=>{
+        const labels=['0-10p','11-20p','21-30p','31-40p','41-50p','51-60p','>60p'];
+        const data=[120,168,142,58,24,8,4];
+        const colors=labels.map((_,i)=>i<3?C.green:C.danger);
+        this.mkChart('barFunnel','bar',labels,[{data,backgroundColor:colors,borderRadius:5,maxBarThickness:54}],
+          {scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:10.5}}},y:{grid:{color:GRID},border:{display:false}}},
+           plugins:{tooltip:{callbacks:{label:c=>`${c.raw} BN · ${c.dataIndex<3?'Đạt chuẩn':'Quá chuẩn'}`}}}});
+      },
+      'ngoaitru-4':()=>{
+        barV('barDtPK',['PK Nội TH','PK Tim Mạch','PK Nhi','PK Sản','PK Thần Kinh','PK Nội Tiết','PK Ung Bướu','PK Mắt'],[580,510,420,360,320,280,240,180],C.maroon,{yticks:{callback:v=>v+'M'},mbt:46});
+        barH('barDtBsNT',['BS. Hoàng V.Nam','BS. Trần V.Hùng','BS. Phạm Q.An','BS. Đỗ H.Sơn','BS. Lê T.Mai','BS. Bùi T.Lan','BS. Vũ Đ.Long','BS. Ng.T.Hà','BS. Ngô V.Khánh','BS. Đặng T.Hồng'],[480,420,380,340,310,280,250,220,190,160],C.maroon,{xticks:{callback:v=>v+'M'}});
+        donut('donutDtDoiTuong',['BHYT','Dịch vụ','BHTN','Khác'],[49.8,39.5,7.3,3.4],[C.blue,C.terra,C.green,C.neutral]);
+        barH('barDtNhomDV',['Thuốc','Xét nghiệm','CĐHA','Khám bệnh','Vật tư','Phẫu thuật','Thủ thuật','Giường NT'],[560,480,380,320,260,220,180,140],C.maroon,{xticks:{callback:v=>v+'M'}}); },
+      'ngoaitru-5':()=>{
+        barH('barXnNhom',['Huyết học','Sinh hoá','Vi sinh','Miễn dịch','Nước tiểu','Đông máu'],[98,150,40,86,64,30],C.maroon);
+        barH('barCdhaNhom',['Siêu âm','CT Scanner','X-quang','MRI','Nội soi ống'],[96,32,168,16,12],C.maroon); },
+      'ngoaitru-6':()=>this.mkChart('barXuatKho','bar',['Kho TT','Kho NT','Kho Ngoại Trú','Kho CC'],[
+        {label:'Xuất bán DV',data:[180,96,124,42],backgroundColor:C.terra,borderRadius:5,maxBarThickness:72,categoryPercentage:0.7,barPercentage:0.92},
+        {label:'Phát BHYT',data:[8400,5400,6800,2400],backgroundColor:C.blue,borderRadius:5,maxBarThickness:72,categoryPercentage:0.7,barPercentage:0.92}
+      ],{scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:10.5}}},
+        y:{min:0,max:9000,grid:{color:GRID},border:{display:false}}
+      },plugins:{tooltip:{mode:'index',intersect:false}}}),
+      'noitru-3':()=>{
+        donut('donutPT',['Ca cấp cứu','Ca chương trình'],[4,8],[C.danger,C.blue]);
+        const total=days30.map((_,i)=>Math.round(8+(Math.sin(i*0.6)*0.5+0.5)*7));
+        const cc=days30.map((_,i)=>Math.round(2+(Math.sin(i*0.9+1)*0.5+0.5)*4));
+        this.mkChart('lineCaMo','line',days30,[
+          {label:'Tổng ca mổ',data:total,borderColor:C.maroon,backgroundColor:'rgba(136,28,28,.06)',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:true},
+          {label:'Cấp cứu',data:cc,borderColor:C.danger,backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:false}
+        ],{interaction:{mode:'index',intersect:false},scales:{x:{...noX,ticks:{maxTicksLimit:8,font:{size:9}}},y:{...yG,min:0,max:16}},plugins:{tooltip:{mode:'index',intersect:false}}}); },
+      'noitru-4':()=>{
+        barV('barDtKhoaNoiTru',['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'],[452,376,210,245,268,224,330,196,152,134],C.maroon,{yticks:{callback:v=>v+'M'},mbt:40});
+        donut('donutChiPhiNoiTru',['Thuốc','CLS (XN+CĐHA)','Giường/Phòng','Phẫu thuật','Vật tư & khác'],[32.0,24.0,18.0,16.0,10.0],[C.maroon,C.blue,C.green,C.amber,C.neutral]); },
+      'noitru-5':()=>{
+        this.mkChart('barCpThuocKhoa','bar',['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'],[{data:[268,224,142,118,186,156,248,132,168,96],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:40}],
+          {scales:{x:{...noX,ticks:{font:{size:9.5}}},y:{min:0,max:300,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}}}});
+        this.mkChart('barCpThuocIcd','bar',['I21 NMCT','C50 Ung thư vú','N18 Suy thận','J18 Viêm phổi','I50 Suy tim','G35 Xơ cứng','A41 NK huyết','J44 COPD','K92 Xuất huyết'],[{data:[168,152,138,124,110,96,84,72,58],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:18}],
+          {indexAxis:'y',scales:{x:{min:0,max:200,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}},y:{...noX,ticks:{font:{size:9.5}}}}}); },
+      'noitru-6':()=>{
+        this.mkChart('barXnNhomNT','bar',['Huyết học','Sinh hoá','Vi sinh','Miễn dịch','Nước tiểu','Đông máu'],[{data:[1240,1180,420,640,820,360],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:20}],
+          {indexAxis:'y',scales:{x:{min:0,max:1400,grid:{color:GRID},border:{display:false}},y:{...noX,ticks:{font:{size:10}}}}});
+        this.mkChart('barCdhaNhomNT','bar',['Siêu âm','CT Scanner','X-quang','MRI','Khác'],[{data:[420,180,480,120,86],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:24}],
+          {indexAxis:'y',scales:{x:{min:0,max:500,grid:{color:GRID},border:{display:false}},y:{...noX,ticks:{font:{size:10}}}}}); },
+      'cls-0':()=>{
+        donut('donutCls',['Xét nghiệm','Chẩn đoán hình ảnh','Nội soi','Thăm dò CN'],[76.3,19.1,2.9,1.7],[C.maroon,C.blue,C.green,C.amber]);
+        const xn=days30.map((_,i)=>Math.round(950+(Math.sin(i*0.5)*0.5+0.5)*300));
+        const cdha=days30.map((_,i)=>Math.round(240+(Math.sin(i*0.7+1)*0.5+0.5)*90));
+        const khac=days30.map((_,i)=>Math.round(50+(Math.sin(i*0.9+2)*0.5+0.5)*30));
+        this.mkChart('lineClsTrend','line',days30,[
+          {label:'Xét nghiệm',data:xn,borderColor:C.maroon,backgroundColor:'rgba(136,28,28,.05)',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4,fill:true},
+          {label:'CĐHA',data:cdha,borderColor:C.blue,backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4},
+          {label:'Nội soi & TDCN',data:khac,borderColor:C.green,backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,pointHoverRadius:4}
+        ],{interaction:{mode:'index',intersect:false},scales:{x:{...noX,ticks:{maxTicksLimit:8,font:{size:9}}},y:{...yG,min:0}},plugins:{tooltip:{mode:'index',intersect:false}}}); },
+      'cls-1':()=>{
+        this.mkChart('barXnKhoa','bar',['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'],[{data:[4180,3520,2840,2460,3120,2980,3840,2150,2680,1920],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:40}],
+          {scales:{x:{...noX,ticks:{font:{size:9.5}}},y:{min:0,max:4500,grid:{color:GRID},border:{display:false}}}});
+        this.mkChart('barXnMay','bar',['Máy HH XS-1000i','Máy SH ADVIA 2400','Máy MD ARCHITECT i2000','Máy ĐM STA-R MAX','Máy NT IQ200 SPRINT','Máy VS BD PHIENIX 100'],[{data:[7080,8650,4820,2860,4310,2140],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:20}],
+          {indexAxis:'y',scales:{x:{min:0,max:9000,grid:{color:GRID},border:{display:false}},y:{...noX,ticks:{font:{size:9.5}}}}}); },
+      'cls-2':()=>{
+        donut('donutCdha',['X - Quang','Siêu âm','CT Scanner','MRI'],[45.5,29.6,18.0,6.9],[C.maroon,C.blue,C.green,C.amber]);
+        const use=[88,76,82,58,71,62];
+        const cols=use.map(v=>v>=80?C.danger:v>=65?C.amber:C.green);
+        this.mkChart('barMayCdha','bar',['CT 64L Siemens Somatom','CT 128L Canon Aquilion','MRI 1.5T Philips Ingenia','XQ KTS GE Definium','SA Voluson E10','SA Doppler EPIQ 7'],[{data:use,backgroundColor:cols,borderRadius:5,maxBarThickness:20}],
+          {indexAxis:'y',scales:{x:{min:0,max:100,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'%'}},y:{...noX,ticks:{font:{size:9.5}}}},
+           plugins:{tooltip:{callbacks:{label:c=>c.raw+'% thời gian khả dụng'}}}}); },
+      'cls-3':()=>{
+        this.mkChart('barDtLoaiCls','bar',['XN Sinh hoá','CT Scanner','XN Miễn dịch','Siêu âm','XN Huyết học','MRI','X-quang','XN Vi sinh','Nội soi','Điện tim ECG'],[{data:[480,420,350,310,280,240,200,150,110,75],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:16}],
+          {indexAxis:'y',scales:{x:{min:0,max:500,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}},y:{...noX,ticks:{font:{size:9.5}}}}});
+        this.mkChart('barDtMayCdha','bar',['CT 64L Siemens','MRI 1.5T Philips','CT 128L Canon','XQ KTS GE','SA Voluson E10','SA Doppler EPIQ'],[{data:[280,245,195,130,105,85],backgroundColor:C.maroon,borderRadius:5,maxBarThickness:44}],
+          {scales:{x:{...noX,ticks:{font:{size:9}}},y:{min:0,max:300,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}}}});
+        this.mkChart('barDtClsKhoa','bar',['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'],[{data:[420,350,280,245,310,265,380,215,260,180],backgroundColor:C.maroon,borderRadius:6,maxBarThickness:110,categoryPercentage:0.82,barPercentage:0.95}],
+          {scales:{x:{...noX,ticks:{font:{size:10}}},y:{min:0,max:450,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}}}}); },
+      'cls-4':()=>barV('barNoiSoi',['Dạ dày','Đại tràng','Phế quản','TMH'],[12,6,5,5],C.maroon),
+      'cls-5':()=>barV('barTdcn',['Điện tim (ECG)','Điện não (EEG)','Đo loãng xương'],[38,12,14],C.maroon),
+      'duoc-2':()=>donut('donutSuDung',['Kháng sinh','Tim mạch','Nội tiết','Ung thư','Gây mê – HS','GN – HT','Khác'],[28,22,18,12,8,4,8],[C.maroon,C.blue,C.green,C.amber,C.terra,C.danger,C.neutral]),
+      'duoc-3':()=>{
+        const khoa=['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'];
+        this.mkChart('barCpKhoa','bar',khoa,[{data:[320,268,142,118,186,156,248,132,168,96],backgroundColor:C.maroon,borderRadius:6,maxBarThickness:96,categoryPercentage:0.8,barPercentage:0.95}],
+          {scales:{x:{...noX,ticks:{font:{size:10}}},y:{min:0,max:350,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}}}});
+        this.mkChart('barKsKhoa','bar',khoa,[{data:[96,124,68,52,48,36,64,58,118,44],backgroundColor:C.terra,borderRadius:5,maxBarThickness:20,categoryPercentage:0.78,barPercentage:0.92}],
+          {indexAxis:'y',scales:{x:{min:0,max:140,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}},y:{...noX,ticks:{font:{size:9.5}}}}}); },
+      'duoc-4':()=>this.mkChart('barNhapXuatKho','bar',['Kho TT','Kho NT','Kho Ngoại Trú','Kho CC','Kho PT'],[
+        {label:'Nhập kho',data:[3.2,1.8,1.5,0.9,1.0],backgroundColor:C.blue,borderRadius:6,maxBarThickness:64,categoryPercentage:0.85,barPercentage:0.95},
+        {label:'Xuất kho',data:[2.4,1.4,1.1,0.6,0.7],backgroundColor:C.terra,borderRadius:6,maxBarThickness:64,categoryPercentage:0.85,barPercentage:0.95}
+      ],{scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:11}}},
+        y:{min:0,max:3.5,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+' tỷ'}}
+      },plugins:{tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.dataset.label}: ${c.raw} tỷ VNĐ`}}}}),
+      'taichinh-2':()=>this.mkChart('barNhomDV','bar',['Khám bệnh','Thuốc','Xét nghiệm','CĐHA','Giường NT','Phẫu thuật','Thủ thuật','Vật tư'],[{data:[620,980,760,520,480,420,280,200],backgroundColor:C.maroon,borderRadius:6,maxBarThickness:34,categoryPercentage:0.85,barPercentage:0.95}],
+        {indexAxis:'y',scales:{x:{min:0,max:1000,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}},y:{grid:{display:false},border:{display:false},ticks:{font:{size:10.5}}}},
+         plugins:{tooltip:{callbacks:{label:c=>`${c.raw} triệu VNĐ`}}}}),
+      'taichinh-3':()=>this.mkChart('barDtKhoa','bar',['Tim Mạch','Ngoại TH','Nhi Khoa','Sản Khoa','Thần Kinh','Nội Tiết','Ung Bướu','Chỉnh Hình','Phổi','Tiêu Hoá'],[{data:[1850,1620,980,1100,1240,890,1480,760,820,640],backgroundColor:C.maroon,borderRadius:6,maxBarThickness:96,categoryPercentage:0.8,barPercentage:0.95}],
+        {scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:11}}},y:{min:0,max:2000,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}}},
+         plugins:{tooltip:{callbacks:{label:c=>`${c.raw} triệu VNĐ`}}}}),
+      'taichinh-4':()=>this.mkChart('barDtBs','bar',['BS. Hoàng V.Nam','BS. Trần V.Hùng','BS. Phạm Q.An','BS. Đỗ H.Sơn','BS. Lê T.Mai','BS. Bùi T.Lan','BS. Vũ Đ.Long','BS. Ng.T.Hà','BS. Ngô V.Khánh','BS. Đặng T.Hồng'],[{data:[480,420,380,340,310,280,250,220,190,160],backgroundColor:C.maroon,borderRadius:6,maxBarThickness:26,categoryPercentage:0.82,barPercentage:0.95}],
+        {indexAxis:'y',scales:{x:{min:0,max:500,grid:{color:GRID},border:{display:false},ticks:{callback:v=>v+'M'}},y:{grid:{display:false},border:{display:false},ticks:{font:{size:11}}}},
+         plugins:{tooltip:{callbacks:{label:c=>`${c.raw} triệu VNĐ`}}}})
+    };
+    (M[key]||(()=>{}))();
+  }
+
+  initSparklines(scope){
+    if(!window.Chart)return;
+    scope.querySelectorAll('canvas[data-spark]').forEach((c,i)=>{
+      const vals=c.dataset.spark.split(',').map(Number);
+      const color=c.dataset.color||this.C.maroon;
+      const id='spark-'+Date.now()+'-'+i; c.id=id;
+      this.mkChart(id,'line',vals.map(()=>''),[{data:vals,borderColor:color,backgroundColor:'transparent',borderWidth:2,tension:.4,pointRadius:0,fill:false}],
+        {plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:{duration:500},layout:{padding:2}});
+    });
+  }
+
+  // ============ CLOCK ============
+  startClock(){
+    const el=this.root.querySelector('#clock');
+    const upd=()=>{ if(el) el.textContent='Cập nhật: '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}); };
+    upd(); this._clock=setInterval(upd,30000);
+  }
+  componentWillUnmount(){ if(this._clock) clearInterval(this._clock); Object.values(this.charts||{}).forEach(c=>{try{c.destroy();}catch(e){}}); }
+
+  // ============ SETTINGS ============
+  loadSettings(){ try{const s=localStorage.getItem('his-cfg');if(s)this.CONFIG={...this.DEFAULT_CONFIG,...JSON.parse(s)};}catch(e){} }
+  applyConfigToForm(){ Object.keys(this.DEFAULT_CONFIG).forEach(k=>{const el=this.root.querySelector('#cfg-'+k);if(el)el.value=this.CONFIG[k];}); }
+  readConfigFromForm(){ const c={};Object.keys(this.DEFAULT_CONFIG).forEach(k=>{const el=this.root.querySelector('#cfg-'+k);if(el)c[k]=Number(el.value)||this.DEFAULT_CONFIG[k];});return c; }
+  openSettings(){ this.root.querySelector('#settingsOverlay').classList.add('open');this.root.querySelector('#settingsDrawer').classList.add('open');this.applyConfigToForm(); }
+  closeSettings(){ this.root.querySelector('#settingsOverlay').classList.remove('open');this.root.querySelector('#settingsDrawer').classList.remove('open'); }
+  saveSettings(){ this.CONFIG=this.readConfigFromForm();try{localStorage.setItem('his-cfg',JSON.stringify(this.CONFIG));}catch(e){}const fb=this.root.querySelector('#savedFb');fb.classList.add('show');setTimeout(()=>fb.classList.remove('show'),2200); }
+  resetSettings(){ this.CONFIG={...this.DEFAULT_CONFIG};this.applyConfigToForm(); }
+
+  // ============ QUICK FILTER ============
+  setQ(btn,m){
+    this.root.querySelectorAll('#qfSeg button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const t=new Date(); let fr=new Date(t);
+    if(m==='today')fr=new Date(t);
+    else if(m==='month')fr=new Date(t.getFullYear(),t.getMonth(),1);
+    else if(m==='quarter')fr=new Date(t.getFullYear(),Math.floor(t.getMonth()/3)*3,1);
+    else if(m==='year')fr=new Date(t.getFullYear(),0,1);
+    this.root.querySelector('#dateFrom').value=fr.toISOString().slice(0,10);
+    this.root.querySelector('#dateTo').value=t.toISOString().slice(0,10);
+  }
+
+  // ============ EVENTS ============
+  bindEvents(){
+    this.root.addEventListener('click',(e)=>{
+      const t=e.target.closest('[data-act]'); if(!t)return;
+      const act=t.dataset.act;
+      if(act==='nav') this.setModule(t.dataset.mod);
+      else if(act==='tab') this.setTab(Number(t.dataset.tab));
+      else if(act==='collapse') this.root.classList.toggle('collapsed');
+      else if(act==='settings-open') this.openSettings();
+      else if(act==='settings-close') this.closeSettings();
+      else if(act==='settings-save') this.saveSettings();
+      else if(act==='settings-reset') this.resetSettings();
+      else if(act==='qf') this.setQ(t,t.dataset.q);
+    });
+  }
+}
+</script>
+</body>
+</html>
